@@ -15,8 +15,7 @@ import {
   LivePreviewPhoto,
   FormSectionWrapper,
   LivePreviewHeading
-} from "./styles"
-
+} from "./styles";
 
 export const EditContent = ({ mode }) => {
   const [selectedImageSrc, setSelectedImageSrc] = useState("");
