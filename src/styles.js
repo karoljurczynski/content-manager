@@ -4,8 +4,7 @@ export const Wrapper = styled.div`
   font-family: 'Arial', sans-serif;
   position: relative;
   z-index: 2;
-  width: 600px;
-  height: 600px;
+  width: fit-content;
   margin: 0 50%;
   transform: translateX(-50%);
   box-sizing: border-box;
@@ -24,18 +23,15 @@ export const ButtonsSection = styled.section`
   justify-content: flex-start;
   align-items: center;
   border-radius: 10px 0 0 10px;
-  width: 20%;
-  height: 600px;
+  width: 80px;
   background: #005994;
+  height: 750px;
 `;
 
 export const FormSection = styled.section`
-  width: 80%;
+  width: calc(100% - 80px);
   height: 100%;
-  padding: 15px;
-  max-height: calc(100% - 30px);
   overflow-x: hidden;
-  overflow-y: scroll;
 `;
 
 export const RoundButton = styled.button`
@@ -58,12 +54,11 @@ export const RoundButton = styled.button`
   }
 `;
 
-export const Form = styled.form`
+export const FormSectionWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
   justify-content: flex-start;
-  width: 100%;
+  align-items: flex-start;
 `;
 export const Heading = styled.h2`
   font-weight: 100;   
@@ -72,6 +67,51 @@ export const Heading = styled.h2`
   margin: 0;
   user-select: none;
   margin-bottom: 15px;
+`;
+
+
+// LIVE PREVIEW
+
+
+export const LivePreviewContainer = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+`;
+export const LivePreviewPhotoWrapper = styled.div`
+  height: 660px;
+  width: 498.66px;
+`;
+export const LivePreviewHeading = styled.h2`
+  font-weight: 100;   
+  color: black;
+  font-size: 26px;
+  margin: 0;
+  user-select: none;  
+  width: 100%;
+  text-align: left;
+  margin-bottom: 16px;
+`;
+export const LivePreviewPhoto = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid black;
+
+  ${({ objectPosition }) => objectPosition && `
+    object-position: ${objectPosition};
+  `}
+`;
+
+export const Form = styled.form`
+  display: flex;
+  padding: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 300px;
 `;
 
 export const Container = styled.div`
@@ -103,7 +143,6 @@ export const Label = styled.label`
 
 export const Button = styled.button`
   font-size: 24px;
-  margin-bottom: 50px;
   margin-right: 10px;
   user-select: none;
 `;
@@ -119,11 +158,6 @@ export const Option = styled.option`
   width: 100%;
 `;
 
-export const Preview = styled.img`
-  width: 100%;
-  height: auto;
-`;
-
 export const SwitchButton = styled.button`
   position: absolute;
   left: -5px;
@@ -135,6 +169,10 @@ export const SwitchButton = styled.button`
   background: white;
   border: 2px solid black;
   border-radius: 20px;
+  cursor: pointer;
+  transition: 0.2s ease;
+
+  ${({ isSwitchAtLeft }) => !isSwitchAtLeft && `left: 12px`}
 `;
 
 export const SwitchBackground = styled.span`
@@ -145,4 +183,5 @@ export const SwitchBackground = styled.span`
   background: white;
   border-radius: 20px;
   border: 2px solid black;
+  cursor: pointer;
 `;

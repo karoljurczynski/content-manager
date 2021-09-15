@@ -2,7 +2,7 @@ import {
   Form, 
   Heading, 
   Label, 
-  Preview,
+  LivePreviewPhoto,
   Select,
   Option, 
   Button, 
@@ -40,12 +40,12 @@ export const DeleteContent = ({ mode }) => {
           </Select>
         </Container>
         }
-
-        { selectedImage &&
+        
+        { /*selectedImage &&
           <Container>
             <Label>Selected { mode === "photos" ? "photo" : "artwork" }</Label>
             <Preview src={ selectedImage } alt="Check your photo's path"/>
-          </Container>
+          </Container>*/
         }
 
         <Container row>
