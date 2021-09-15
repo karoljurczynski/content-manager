@@ -20,36 +20,61 @@ import {
 
 export const EditContent = ({ mode }) => {
   const [selectedImageSrc, setSelectedImageSrc] = useState("");
-  const [selectedImageId, setSelectedImageId] = useState(0);
+  const [selectedImageId, setSelectedImageId] = useState("");
   const [selectedImageTitle, setSelectedImageTitle] = useState("");
-  const [imageObjectPosition, setImageObjectPosition] = useState("50 50");
+  const [imageObjectPosition, setImageObjectPosition] = useState("50% 50%");
   const [imagesArray, setImagesArray] = useState([]);
-
   const [percentX, setPercentX] = useState(50);
   const [percentY, setPercentY] = useState(50);
   
-  useEffect(async () => { mode === "photos" ? setImagesArray(await  getDataFromDatabase("photos")) : setImagesArray(await getDataFromDatabase("artworks")) }, [ mode ]);
-  useEffect(() => { setImageObjectPosition(`${percentX}% ${percentY}%`) }, [percentX, percentY]);
+  useEffect(async () => { 
+    setImagesArray(await getDataFromDatabase(mode)); 
+
+  }, [ mode ]);
+
+  useEffect(() => { 
+    setImageObjectPosition(`${percentX}% ${percentY}%`);
+
+  }, [percentX, percentY]);
+  
   useEffect(() => {
+    setSelectedImageId(0);
     setSelectedImageSrc("");
     setSelectedImageTitle("");
-    setImageObjectPosition("50 50");
+    setImageObjectPosition("50% 50%");
+    setPercentX(50);
+    setPercentY(50);
     
   }, [ imagesArray ]);
 
+  const getPercentValueFromObjectPosition = (objectPosition, axis) => {
+    return objectPosition.split(" ")[axis === "x" ? 0 : 1].split("%")[0];
+  }
+  
+
   useEffect(() => {
-    if (imagesArray && selectedImageId) {
-      imagesArray[selectedImageId].src && setSelectedImageSrc(imagesArray[selectedImageId].src);
-      imagesArray[selectedImageId].title && setSelectedImageTitle(imagesArray[selectedImageId].title);
-      imagesArray[selectedImageId].style && setImageObjectPosition(imagesArray[selectedImageId].style.objectPosition);
+    if (selectedImageId.length) {
+      setSelectedImageSrc(imagesArray[selectedImageId].src);
+      setSelectedImageTitle(imagesArray[selectedImageId].title);
+
+      if (imagesArray[selectedImageId].style) {
+        setImageObjectPosition(imagesArray[selectedImageId].style.objectPosition);
+        setPercentX(getPercentValueFromObjectPosition(imagesArray[selectedImageId].style.objectPosition, "x"));
+        setPercentY(getPercentValueFromObjectPosition(imagesArray[selectedImageId].style.objectPosition, "y"));
+      }
     }
 
+    return () => {
+      setSelectedImageSrc("");
+      setSelectedImageTitle("");
+      setImageObjectPosition("50% 50%");
+      setPercentX(50);
+      setPercentY(50);
+    }
+     
   }, [ selectedImageId ])
 
   const handleImageSelect = (e) => {
-    setSelectedImageSrc("");
-    setSelectedImageTitle("");
-    setImageObjectPosition("50 50");
     setSelectedImageId(e.target.value);
   }
   const handleUrlOnChange = (e) => {
@@ -66,7 +91,6 @@ export const EditContent = ({ mode }) => {
   }
   const handleImageEdit = async (e) => {
     e.preventDefault();
-
     const newArray = imagesArray;
     const newImage = {
       alt: selectedImageTitle ? selectedImageTitle : `Photo ${selectedImageId}`,
@@ -81,9 +105,16 @@ export const EditContent = ({ mode }) => {
   }
   const handleImageEditCanceled = (e) => {
     e.preventDefault();
-    setSelectedImageSrc("");
-    setSelectedImageTitle("");
-    setImageObjectPosition("50 50");
+    if (selectedImageId.length) {
+      setSelectedImageSrc(imagesArray[selectedImageId].src);
+      setSelectedImageTitle(imagesArray[selectedImageId].title);
+
+      if (imagesArray[selectedImageId].style) {
+        setImageObjectPosition(imagesArray[selectedImageId].style.objectPosition);
+        setPercentX(getPercentValueFromObjectPosition(imagesArray[selectedImageId].style.objectPosition, "x"));
+        setPercentY(getPercentValueFromObjectPosition(imagesArray[selectedImageId].style.objectPosition, "y"));
+      }
+    }
   }
 
   return (
@@ -114,7 +145,7 @@ export const EditContent = ({ mode }) => {
           <Input type="text" value={ selectedImageTitle } onChange={ handleTitleOnChange }></Input>
         </Container>
 
-        { selectedImageId &&
+        { selectedImageId.length &&
           <>                                     
           <Container>
               <Label>Set horizontal position</Label>
