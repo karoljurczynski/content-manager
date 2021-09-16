@@ -23,8 +23,8 @@ export const FormSelectingButton = ({ formType, onClickFunction }) => {
   }
 
   return (
-    <RoundButton title={ formType } onClick={ onClickFunction }>
-      <img src={ getIcon() } alt={ formType } />
+    <RoundButton title={formType} onClick={onClickFunction}>
+      <img src={ getIcon() } alt={formType} />
     </RoundButton>
   )
 }

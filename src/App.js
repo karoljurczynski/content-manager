@@ -1,40 +1,41 @@
+// IMPORTS
+
 import { React, useState } from 'react';
-import { Wrapper, ButtonsSection, FormSection } from './styles';
+import { ManageContent } from './ManageContent';
 import { FormSelectingButton } from './FormSelectingButton';
 import { Switch } from './Switch';
 
-import { AddContent } from './AddContent';
-import { DeleteContent } from './DeleteContent';
-import { EditContent } from './EditContent';
+import { Wrapper, ButtonsSection, FormSection } from './styles';
+
 
 
 export const App = () => {
-  const [isAddContentFormSelected, setIsAddContentFormSelected] = useState(true);
-  const [isEditContentFormSelected, setIsEditContentFormSelected] = useState(false);
-  const [isDeleteContentFormSelected, setIsDeleteContentFormSelected] = useState(false);
+
+  // STATE
+
+
   const [mode, setMode] = useState("photos");
+  const [actionType, setActionType] = useState("Add");
 
 
-  const closeAllForms = () => {
-    setIsAddContentFormSelected(false);
-    setIsEditContentFormSelected(false);
-    setIsDeleteContentFormSelected(false);
-  }
+  // FORM HANDLERS
+
+
   const handleAddForm = () => {
-    closeAllForms();
-    setIsAddContentFormSelected(true);
+    setActionType("Add");
   }
   const handleEditForm = () => {
-    closeAllForms();
-    setIsEditContentFormSelected(true);
+    setActionType("Edit");
   }
   const handleDeleteForm = () => {
-    closeAllForms();
-    setIsDeleteContentFormSelected(true);
+    setActionType("Delete");
   }
   const handleSwitch = () => {
     mode === "photos" ? setMode("artworks") : setMode("photos");
   }
+
+
+  // JSX
 
 
   return (
@@ -48,9 +49,7 @@ export const App = () => {
       </ButtonsSection>
 
       <FormSection>
-        { isAddContentFormSelected && <AddContent mode={ mode } /> }
-        { isEditContentFormSelected && <EditContent mode={ mode } /> }
-        { isDeleteContentFormSelected && <DeleteContent mode={ mode } /> }
+        <ManageContent mode={ mode } actionType={ actionType } />
       </FormSection>
 
     </Wrapper>

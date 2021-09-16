@@ -3,18 +3,21 @@ import { db } from "./firebaseConfig";
 
 
 const databaseRef = doc(db, "images/content");
-const testRef = doc(db, "images/test");
 
 
-export const getDataFromDatabase = async (typeOfContent) => {
+export const getDataFromDatabase = async (mode) => {
   const databaseContent = await getDoc(databaseRef);
-  if (typeOfContent === "photos")
+  if (mode === "photos")
     return await databaseContent.data().photos;
   else
     return await databaseContent.data().artworks;
 }
-export const sendDataToDatabase = async (typeOfContent, newArray) => {
-  let contentToSend = {};
-  typeOfContent === "photos" ? contentToSend = {photos: newArray} : contentToSend = {artworks: newArray};
-  setDoc(databaseRef, contentToSend, { merge: true });
+export const sendDataToDatabase = async (mode, newArray) => {
+  if (mode === "photos")
+    setDoc(databaseRef, {photos: newArray}, {merge: true});
+  else
+    setDoc(databaseRef, {artworks: newArray}, {merge: true});  
+}
+export const getPercentValueFromObjectPosition = (objectPosition, axis) => {
+  return objectPosition.split(" ")[axis === "x" ? 0 : 1].split("%")[0];
 }
