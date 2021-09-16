@@ -180,8 +180,8 @@ export const ManageContent = ({ mode, actionType }) => {
         <Heading>{actionType} {mode === "photos" ? "photo" : "artwork"}</Heading>
         { (imagesArray && actionType !== "Add") &&
           <Container>
-          <Label>Select a {mode === "photos" ? "photo" : "artwork"} to {actionType}</Label>
-          <Select size="5" onChange={handleImageSelect}>
+          <Label for="imageSelect">Select a {mode === "photos" ? "photo" : "artwork"} to {actionType}</Label>
+          <Select name="imageSelect" size="5" onChange={handleImageSelect}>
             { imagesArray.map((image, index) => {
               return (
                 <Option key={index} value={index}>{image.title ? image.title : image.src}</Option>
@@ -195,13 +195,13 @@ export const ManageContent = ({ mode, actionType }) => {
         { actionType !== "Delete" &&
           <>
           <Container>
-            <Label>External URL of {mode === "photos" ? "photo" : "artwork"}</Label>
-            <Input type="text" value={imageSrc} onChange={handleSrcOnChange}></Input>
+            <Label for="srcInput">External URL of {mode === "photos" ? "photo" : "artwork"}</Label>
+            <Input type="text" name="srcInput" value={imageSrc} onChange={handleSrcOnChange}></Input>
           </Container>
 
           <Container>
-            <Label>{ mode === "photos" ? "Photo" : "Artwork" } title (optional)</Label>
-            <Input type="text" value={imageTitle} onChange={handleTitleChange}></Input>
+            <Label for="titleInput">{ mode === "photos" ? "Photo" : "Artwork" } title (optional)</Label>
+            <Input type="text" name="titleInput" value={imageTitle} onChange={handleTitleChange}></Input>
           </Container>
           </>
         }
@@ -209,14 +209,14 @@ export const ManageContent = ({ mode, actionType }) => {
         { (imageSrc && actionType !== "Delete") &&
           <>                                     
           <Container>
-              <Label>Set horizontal position</Label>
-              <Input type="range" min="0" max="100" step="1" value={percentX} onChange={handlePercentXChange}></Input>
+              <Label for="percentXSlider">Set horizontal position</Label>
+              <Input type="range" name="percentXSlider" min="0" max="100" step="1" value={percentX} onChange={handlePercentXChange}></Input>
               <Label>{percentX}%</Label>
             </Container> 
 
             <Container>
-              <Label>Set vertical position</Label>
-              <Input type="range" min="0" max="100" step="1" value={percentY} onChange={handlePercentYChange}></Input>
+              <Label for="percentYSlider">Set vertical position</Label>
+              <Input type="range" name="percentYSlider" min="0" max="100" step="1" value={percentY} onChange={handlePercentYChange}></Input>
               <Label>{percentY}%</Label>
             </Container>     
           </>
@@ -248,8 +248,8 @@ export const ManageContent = ({ mode, actionType }) => {
     { imageSrc &&
       <LivePreviewContainer>
         <LivePreviewHeading>Live preview</LivePreviewHeading>
-        <LivePreviewPhotoWrapper>
-          <LivePreviewPhoto src={imageSrc} objectPosition={imageObjectPosition} alt="Check your photo's path" />
+        <LivePreviewPhotoWrapper mode={mode}>
+          <LivePreviewPhoto src={imageSrc} objectPosition={imageObjectPosition} alt="Check your image's path" />
         </LivePreviewPhotoWrapper>
       </LivePreviewContainer>
     }

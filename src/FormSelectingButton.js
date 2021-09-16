@@ -3,8 +3,8 @@ import addIcon from './images/add.png';
 import editIcon from './images/edit.png';
 import deleteIcon from './images/delete.png';
 
-export const FormSelectingButton = ({ formType, onClickFunction }) => {
 
+export const FormSelectingButton = ({ formType, onClickFunction }) => {
   const getIcon = () => {
     switch (formType) {
       case "Add": {
@@ -24,7 +24,7 @@ export const FormSelectingButton = ({ formType, onClickFunction }) => {
 
   return (
     <RoundButton title={formType} onClick={onClickFunction}>
-      <img src={ getIcon() } alt={formType} />
+      <img src={getIcon()} alt={formType} />
     </RoundButton>
   )
 }

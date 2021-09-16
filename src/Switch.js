@@ -1,5 +1,6 @@
-import { SwitchBackground, SwitchButton } from './styles';
 import { useState } from 'react';
+import { SwitchBackground, SwitchButton } from './styles';
+
 
 export const Switch = ({ onClickFunction }) => {
   const [isSwitchAtLeft, setIsSwitchAtLeft] = useState(true);

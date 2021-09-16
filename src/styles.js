@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+
+// LAYOUT ELEMENTS
+
+
 export const Wrapper = styled.div`
   font-family: 'Arial', sans-serif;
   position: relative;
@@ -15,6 +19,43 @@ export const Wrapper = styled.div`
   justify-content: flex-start;
   border-radius: 10px;
 `;
+export const FormSectionWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+`;
+export const FormSection = styled.section`
+  width: calc(100% - 80px);
+  height: 100%;
+  overflow-x: hidden;
+`;
+export const Container = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  
+  ${({ row }) => row && `
+    flex-direction: row;
+  `}
+
+  * > & {
+    margin-bottom: 15px;
+  }
+`;
+export const Heading = styled.h2`
+  font-weight: 100;   
+  color: black;
+  font-size: 26px;
+  margin: 0;
+  user-select: none;
+  margin-bottom: 15px;
+`;
+
+// BUTTONS SECTION
+
 
 export const ButtonsSection = styled.section`
   position: relative;
@@ -27,13 +68,6 @@ export const ButtonsSection = styled.section`
   background: #005994;
   height: 750px;
 `;
-
-export const FormSection = styled.section`
-  width: calc(100% - 80px);
-  height: 100%;
-  overflow-x: hidden;
-`;
-
 export const RoundButton = styled.button`
   display: flex;
   align-items: center;
@@ -54,19 +88,71 @@ export const RoundButton = styled.button`
   }
 `;
 
-export const FormSectionWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: flex-start;
+
+// SWITCH
+
+
+export const SwitchBackground = styled.span`
+  position: absolute;
+  bottom: 15px;
+  width: 25px;
+  height: 12px;
+  background: white;
+  border-radius: 20px;
+  border: 2px solid black;
+  cursor: pointer;
 `;
-export const Heading = styled.h2`
-  font-weight: 100;   
-  color: black;
-  font-size: 26px;
-  margin: 0;
+export const SwitchButton = styled.button`
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  bottom: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  background: white;
+  border: 2px solid black;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.2s ease;
+
+  ${({ isSwitchAtLeft }) => !isSwitchAtLeft && `left: 12px`}
+`;
+
+
+// FORM
+
+
+export const Form = styled.form`
+  display: flex;
+  padding: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 300px;
+`;
+export const Input = styled.input`
+  padding: 5px;
+  font-size: 18px;
+  width: 250px;
+`;
+export const Select = styled.select`
+  width: 100%;
+  padding: 5px;
+  max-height: 100px;
   user-select: none;
-  margin-bottom: 15px;
+`;
+export const Option = styled.option`
+  width: 100%;
+`;
+export const Button = styled.button`
+  font-size: 24px;
+  margin-right: 10px;
+  user-select: none;
+`;
+export const Label = styled.label`
+  font-size: 16px;
+  margin-bottom: 2px;
 `;
 
 
@@ -83,6 +169,11 @@ export const LivePreviewContainer = styled.section`
 export const LivePreviewPhotoWrapper = styled.div`
   height: 660px;
   width: 498.66px;
+
+  ${({ mode }) => mode === "artworks" && `
+    height: 498.66px;
+    width: 498.66px;
+  `}
 `;
 export const LivePreviewHeading = styled.h2`
   font-weight: 100;   
@@ -103,85 +194,4 @@ export const LivePreviewPhoto = styled.img`
   ${({ objectPosition }) => objectPosition && `
     object-position: ${objectPosition};
   `}
-`;
-
-export const Form = styled.form`
-  display: flex;
-  padding: 10px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  width: 300px;
-`;
-
-export const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  
-  ${({ row }) => row && `
-    flex-direction: row;
-  `}
-
-  * > & {
-    margin-bottom: 15px;
-  }
-`;
-
-export const Input = styled.input`
-  padding: 5px;
-  font-size: 18px;
-  width: 250px;
-`;
-
-export const Label = styled.label`
-  font-size: 16px;
-  margin-bottom: 2px;
-`;
-
-export const Button = styled.button`
-  font-size: 24px;
-  margin-right: 10px;
-  user-select: none;
-`;
-
-export const Select = styled.select`
-  width: 100%;
-  padding: 5px;
-  max-height: 100px;
-  user-select: none;
-`;
-
-export const Option = styled.option`
-  width: 100%;
-`;
-
-export const SwitchButton = styled.button`
-  position: absolute;
-  left: -5px;
-  top: 50%;
-  bottom: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  background: white;
-  border: 2px solid black;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: 0.2s ease;
-
-  ${({ isSwitchAtLeft }) => !isSwitchAtLeft && `left: 12px`}
-`;
-
-export const SwitchBackground = styled.span`
-  position: absolute;
-  bottom: 15px;
-  width: 25px;
-  height: 12px;
-  background: white;
-  border-radius: 20px;
-  border: 2px solid black;
-  cursor: pointer;
 `;
