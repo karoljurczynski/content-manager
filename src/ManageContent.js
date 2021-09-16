@@ -1,6 +1,7 @@
 // IMPORTS
 
 import { useState, useEffect } from "react";
+import { Switch } from './Switch';
 import { getDataFromDatabase, sendDataToDatabase, getPercentValueFromObjectPosition } from "./functions";
 
 import {Form, Heading, Container, Label, Select,
@@ -22,8 +23,10 @@ export const ManageContent = ({ mode, actionType }) => {
   const [imageTitle, setImageTitle] = useState("");
   const [imageObjectPosition, setImageObjectPosition] = useState("50% 50%");
 
-  const [percentX, setPercentX] = useState(50);
-  const [percentY, setPercentY] = useState(50);
+  const [percentXDesktop, setPercentXDesktop] = useState(50);
+  const [percentYDesktop, setPercentYDesktop] = useState(50);
+  const [percentXMobile, setPercentXMobile] = useState(50);
+  const [percentYMobile, setPercentYMobile] = useState(50);
 
 
   // TOOL FUNCTIONS
@@ -34,8 +37,10 @@ export const ManageContent = ({ mode, actionType }) => {
     setImageSrc("");
     setImageTitle("");
     setImageObjectPosition("50% 50%");
-    setPercentX(50);
-    setPercentY(50);
+    setPercentXDesktop(50);
+    setPercentYDesktop(50);
+    setPercentXMobile(50);
+    setPercentYMobile(50);
   }
   const fetchDataFromDatabaseToImagesArray = async () => {
     setImagesArray(await getDataFromDatabase(mode));
@@ -56,10 +61,15 @@ export const ManageContent = ({ mode, actionType }) => {
     resetImageValues();
   }, [ actionType ])
 
-  // Updates object-position to display image preview correctly when sliders are moved
+  // Updates object-position for desktop to display image preview correctly when sliders are moved
   useEffect(() => { 
-    setImageObjectPosition(`${ percentX }% ${ percentY }%`);
-  }, [ percentX, percentY ]);
+    setImageObjectPosition(`${ percentXDesktop }% ${ percentYDesktop }%`);
+  }, [ percentXDesktop, percentYDesktop ]);
+
+  // Updates object-position for mobile to display image preview correctly when sliders are moved
+  useEffect(() => { 
+    setImageObjectPosition(`${ percentXMobile }% ${ percentYMobile }%`);
+  }, [ percentXMobile, percentYMobile ]);
   
   // Gets image's src, title and other values from array when imageId is changed
   useEffect(() => {
@@ -69,8 +79,10 @@ export const ManageContent = ({ mode, actionType }) => {
 
       if (imagesArray[imageId].style) {
         setImageObjectPosition(imagesArray[imageId].style.objectPosition);
-        setPercentX(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
-        setPercentY(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
+        setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
+        setPercentYDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
+        setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x")); //here
+        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
       }
     }
   }, [ imageId ]);
@@ -89,11 +101,17 @@ export const ManageContent = ({ mode, actionType }) => {
     resetImageValues();
     setImageId(e.target.value);
   }
-  const handlePercentXChange = (e) => {
-    setPercentX(e.target.value);    
+  const handlePercentXDesktopChange = (e) => {
+    setPercentXDesktop(e.target.value);    
   }
-  const handlePercentYChange = (e) => {
-    setPercentY(e.target.value);
+  const handlePercentYDesktopChange = (e) => {
+    setPercentYDesktop(e.target.value);
+  }
+  const handlePercentXMobileChange = (e) => {
+    setPercentXMobile(e.target.value);    
+  }
+  const handlePercentYMobileChange = (e) => {
+    setPercentYMobile(e.target.value);
   }
   
 
@@ -148,8 +166,10 @@ export const ManageContent = ({ mode, actionType }) => {
 
       if (imagesArray[imageId].style) {
         setImageObjectPosition(imagesArray[imageId].style.objectPosition);
-        setPercentX(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
-        setPercentY(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
+        setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
+        setPercentYDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
+        setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x")); //here
+        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
       }
     }
   }
@@ -208,16 +228,28 @@ export const ManageContent = ({ mode, actionType }) => {
         
         { (imageSrc && actionType !== "Delete") &&
           <>                                     
-          <Container>
-              <Label for="percentXSlider">Set horizontal position</Label>
-              <Input type="range" name="percentXSlider" min="0" max="100" step="1" value={percentX} onChange={handlePercentXChange}></Input>
-              <Label>{percentX}%</Label>
+            <Container>
+              <Label for="percentXDesktopSlider">Set horizontal position on desktop</Label>
+              <Input type="range" name="percentXDesktopSlider" min="0" max="100" step="1" value={percentXDesktop} onChange={handlePercentXDesktopChange}></Input>
+              <Label>{percentXDesktop}%</Label>
             </Container> 
 
             <Container>
-              <Label for="percentYSlider">Set vertical position</Label>
-              <Input type="range" name="percentYSlider" min="0" max="100" step="1" value={percentY} onChange={handlePercentYChange}></Input>
-              <Label>{percentY}%</Label>
+              <Label for="percentYDesktopSlider">Set vertical position on desktop</Label>
+              <Input type="range" name="percentYDesktopSlider" min="0" max="100" step="1" value={percentYDesktop} onChange={handlePercentYDesktopChange}></Input>
+              <Label>{percentYDesktop}%</Label>
+            </Container>
+
+            <Container>
+              <Label for="percentXMobileSlider">Set horizontal position on mobile</Label>
+              <Input type="range" name="percentXMobileSlider" min="0" max="100" step="1" value={percentXMobile} onChange={handlePercentXMobileChange}></Input>
+              <Label>{percentXMobile}%</Label>
+            </Container> 
+
+            <Container>
+              <Label for="percentYMobileSlider">Set vertical position on mobile</Label>
+              <Input type="range" name="percentYMobileSlider" min="0" max="100" step="1" value={percentYMobile} onChange={handlePercentYMobileChange}></Input>
+              <Label>{percentYMobile}%</Label>
             </Container>     
           </>
         }  
@@ -248,6 +280,7 @@ export const ManageContent = ({ mode, actionType }) => {
     { imageSrc &&
       <LivePreviewContainer>
         <LivePreviewHeading>Live preview</LivePreviewHeading>
+        <Switch onClickFunction={() => {/*here*/ }} />
         <LivePreviewPhotoWrapper mode={mode}>
           <LivePreviewPhoto src={imageSrc} objectPosition={imageObjectPosition} alt="Check your image's path" />
         </LivePreviewPhotoWrapper>
