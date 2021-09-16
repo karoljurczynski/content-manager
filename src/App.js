@@ -39,9 +39,9 @@ export const App = () => {
 
 
   return (
-    <Wrapper>
+    <Wrapper mode={mode}>
 
-      <ButtonsSection>
+      <ButtonsSection actionType={actionType}>
         <FormSelectingButton formType="Add" onClickFunction={ handleAddForm } />
         <FormSelectingButton formType="Edit" onClickFunction={ handleEditForm } />
         <FormSelectingButton formType="Delete" onClickFunction={ handleDeleteForm } />

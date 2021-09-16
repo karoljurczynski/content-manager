@@ -11,19 +11,41 @@ export const Wrapper = styled.div`
   width: fit-content;
   margin: 0 50%;
   transform: translateX(-50%);
-  box-sizing: border-box;
   border: 1px solid black;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
   border-radius: 10px;
+
+
+  ${({ mode }) => mode === "artworks" && `
+    height: 568px;
+    @media (max-width: 930px) { height: 1120px }
+  `}
+
+  ${({ mode }) => mode === "photos" && `
+    height: 729px;
+    @media (max-width: 930px) { height: 1281px }
+  `}
+  
+
+  @media (max-width: 930px) {
+    width: 630px;
+  }
+  @media (max-width: 650px) {
+    width: 100%;
+  }
 `;
 export const FormSectionWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
+
+  @media (max-width: 930px) {
+    flex-direction: column;
+  }
 `;
 export const FormSection = styled.section`
   width: calc(100% - 80px);
@@ -65,8 +87,19 @@ export const ButtonsSection = styled.section`
   align-items: center;
   border-radius: 10px 0 0 10px;
   width: 80px;
-  background: #005994;
-  height: 750px;
+  height: 100%;
+
+  ${({ actionType }) => actionType === "Add" && `
+    background: #008000;
+  `}
+
+  ${({ actionType }) => actionType === "Edit" && `
+    background: #FF8C00;
+  `}
+
+  ${({ actionType }) => actionType === "Delete" && `
+    background: #FF0000;
+  `}
 `;
 export const RoundButton = styled.button`
   display: flex;
@@ -130,6 +163,10 @@ export const Form = styled.form`
   align-items: flex-start;
   justify-content: flex-start;
   width: 300px;
+
+  @media (max-width: 930px) {
+    width: 100%;
+  }
 `;
 export const Input = styled.input`
   padding: 5px;
@@ -146,7 +183,8 @@ export const Option = styled.option`
   width: 100%;
 `;
 export const Button = styled.button`
-  font-size: 24px;
+  font-size: 16px;
+  padding: 6px 14px;
   margin-right: 10px;
   user-select: none;
 `;
@@ -162,7 +200,7 @@ export const Label = styled.label`
 export const LivePreviewContainer = styled.section`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
   padding: 10px;
 `;
@@ -174,6 +212,10 @@ export const LivePreviewPhotoWrapper = styled.div`
     height: 498.66px;
     width: 498.66px;
   `}
+  
+  @media (max-width: 650px) {
+    width: 100%;
+  }
 `;
 export const LivePreviewHeading = styled.h2`
   font-weight: 100;   
