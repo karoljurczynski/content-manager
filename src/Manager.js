@@ -11,17 +11,19 @@ import {Form, Heading, Container, Label, Select,
 
   
 
-export const ManageContent = ({ mode, actionType }) => {
+export const Manager = ({ mode, actionType }) => {
 
   // STATE
 
 
   const [imagesArray, setImagesArray] = useState([]);
+  const [isDesktopPreview, setIsDesktopPreview] = useState(true);
 
   const [imageSrc, setImageSrc] = useState("");
   const [imageId, setImageId] = useState("");
   const [imageTitle, setImageTitle] = useState("");
-  const [imageObjectPosition, setImageObjectPosition] = useState("50% 50%");
+  const [imageDesktopObjectPosition, setImageDesktopObjectPosition] = useState("50% 50%");
+  const [imageMobileObjectPosition, setImageMobileObjectPosition] = useState("50% 50%");
 
   const [percentXDesktop, setPercentXDesktop] = useState(50);
   const [percentYDesktop, setPercentYDesktop] = useState(50);
@@ -36,7 +38,8 @@ export const ManageContent = ({ mode, actionType }) => {
     setImageId(0);
     setImageSrc("");
     setImageTitle("");
-    setImageObjectPosition("50% 50%");
+    setImageDesktopObjectPosition("50% 50%");
+    setImageMobileObjectPosition("50% 50%");
     setPercentXDesktop(50);
     setPercentYDesktop(50);
     setPercentXMobile(50);
@@ -53,22 +56,24 @@ export const ManageContent = ({ mode, actionType }) => {
   // Loads new images from database when mode is changed (photos/artworks)
   useEffect(() => { 
     fetchDataFromDatabaseToImagesArray();
+    setIsDesktopPreview(true);
     resetImageValues(); 
   }, [ mode ]);
 
-  // Reset image values when actionType is changed (add/edit/delete)
+  // Reset image values and preview when actionType is changed (add/edit/delete)
   useEffect(() => {
+    setIsDesktopPreview(true);
     resetImageValues();
   }, [ actionType ])
 
   // Updates object-position for desktop to display image preview correctly when sliders are moved
   useEffect(() => { 
-    setImageObjectPosition(`${ percentXDesktop }% ${ percentYDesktop }%`);
+    setImageDesktopObjectPosition(`${ percentXDesktop }% ${ percentYDesktop }%`);
   }, [ percentXDesktop, percentYDesktop ]);
 
   // Updates object-position for mobile to display image preview correctly when sliders are moved
   useEffect(() => { 
-    setImageObjectPosition(`${ percentXMobile }% ${ percentYMobile }%`);
+    setImageMobileObjectPosition(`${ percentXMobile }% ${ percentYMobile }%`);
   }, [ percentXMobile, percentYMobile ]);
   
   // Gets image's src, title and other values from array when imageId is changed
@@ -78,11 +83,15 @@ export const ManageContent = ({ mode, actionType }) => {
       setImageTitle(imagesArray[imageId].title);
 
       if (imagesArray[imageId].style) {
-        setImageObjectPosition(imagesArray[imageId].style.objectPosition);
+        setImageDesktopObjectPosition(imagesArray[imageId].style.objectPosition);
         setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
         setPercentYDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
-        setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x")); //here
-        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
+      }
+
+      if (imagesArray[imageId].mobileStyles) {
+        setImageMobileObjectPosition(imagesArray[imageId].mobileStyles.objectPosition);
+        setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "x"));
+        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "y"));
       }
     }
   }, [ imageId ]);
@@ -113,6 +122,9 @@ export const ManageContent = ({ mode, actionType }) => {
   const handlePercentYMobileChange = (e) => {
     setPercentYMobile(e.target.value);
   }
+  const changePreviewType = () => {
+    setIsDesktopPreview(!isDesktopPreview);
+  }
   
 
   // ADD IMAGE FUNCTIONS
@@ -126,7 +138,10 @@ export const ManageContent = ({ mode, actionType }) => {
       src: imageSrc,
       title: imageTitle,
       style: {
-        objectPosition: imageObjectPosition
+        objectPosition: imageDesktopObjectPosition
+      },
+      mobileStyles: {
+        objectPosition: imageMobileObjectPosition
       }
     }
     newArray.push(newImage);
@@ -150,7 +165,10 @@ export const ManageContent = ({ mode, actionType }) => {
       src: imageSrc,
       title: imageTitle,
       style: {
-        objectPosition: imageObjectPosition
+        objectPosition: imageDesktopObjectPosition
+      },
+      mobileStyles: {
+        objectPosition: imageMobileObjectPosition
       }
     }
     newArray[imageId] = newImage;
@@ -159,17 +177,20 @@ export const ManageContent = ({ mode, actionType }) => {
   }
   const handleImageEditReset = (e) => {
     e.preventDefault();
-    resetImageValues();
     if (imageId.length) {
       setImageSrc(imagesArray[imageId].src);
       setImageTitle(imagesArray[imageId].title);
 
       if (imagesArray[imageId].style) {
-        setImageObjectPosition(imagesArray[imageId].style.objectPosition);
+        setImageDesktopObjectPosition(imagesArray[imageId].style.objectPosition);
         setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
         setPercentYDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
-        setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x")); //here
-        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
+      }
+
+      if (imagesArray[imageId].mobileStyles) {
+        setImageMobileObjectPosition(imagesArray[imageId].mobileStyles.objectPosition);
+        setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "x"));
+        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "y"));
       }
     }
   }
@@ -226,7 +247,7 @@ export const ManageContent = ({ mode, actionType }) => {
           </>
         }
         
-        { (imageSrc && actionType !== "Delete") &&
+        { (imageSrc && actionType !== "Delete" && isDesktopPreview) &&
           <>                                     
             <Container>
               <Label for="percentXDesktopSlider">Set horizontal position on desktop</Label>
@@ -239,7 +260,11 @@ export const ManageContent = ({ mode, actionType }) => {
               <Input type="range" name="percentYDesktopSlider" min="0" max="100" step="1" value={percentYDesktop} onChange={handlePercentYDesktopChange}></Input>
               <Label>{percentYDesktop}%</Label>
             </Container>
+          </>
+        }
 
+        { (imageSrc && actionType !== "Delete" && !isDesktopPreview) &&
+          <>                                     
             <Container>
               <Label for="percentXMobileSlider">Set horizontal position on mobile</Label>
               <Input type="range" name="percentXMobileSlider" min="0" max="100" step="1" value={percentXMobile} onChange={handlePercentXMobileChange}></Input>
@@ -253,6 +278,7 @@ export const ManageContent = ({ mode, actionType }) => {
             </Container>     
           </>
         }  
+
 
         { actionType === "Add" &&
           <Container row>
@@ -279,10 +305,10 @@ export const ManageContent = ({ mode, actionType }) => {
 
     { imageSrc &&
       <LivePreviewContainer>
-        <LivePreviewHeading>Live preview</LivePreviewHeading>
-        <Switch onClickFunction={() => {/*here*/ }} />
-        <LivePreviewPhotoWrapper mode={mode}>
-          <LivePreviewPhoto src={imageSrc} objectPosition={imageObjectPosition} alt="Check your image's path" />
+        <LivePreviewHeading>{isDesktopPreview ? "Desktop" : "Mobile"} preview</LivePreviewHeading>
+        <Switch previewChanger onClickFunction={changePreviewType} />
+        <LivePreviewPhotoWrapper mode={mode} isDesktopPreview={isDesktopPreview}>
+          <LivePreviewPhoto src={imageSrc} objectPosition={isDesktopPreview ? imageDesktopObjectPosition : imageMobileObjectPosition} alt="Check your image's path" />
         </LivePreviewPhotoWrapper>
       </LivePreviewContainer>
     }

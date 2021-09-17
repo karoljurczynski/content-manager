@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { SwitchBackground, SwitchButton } from './styles';
 
 
-export const Switch = ({ onClickFunction }) => {
+export const Switch = ({ previewChanger, onClickFunction }) => {
   const [isSwitchAtLeft, setIsSwitchAtLeft] = useState(true);
 
   const handleSwitchClick = () => {
@@ -11,7 +11,7 @@ export const Switch = ({ onClickFunction }) => {
   }
 
   return (
-    <SwitchBackground onClick={ handleSwitchClick }>
+    <SwitchBackground previewChanger={previewChanger} onClick={ handleSwitchClick }>
       <SwitchButton isSwitchAtLeft={ isSwitchAtLeft } />
     </SwitchBackground>
   )

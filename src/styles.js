@@ -8,6 +8,7 @@ export const Wrapper = styled.div`
   font-family: 'Arial', sans-serif;
   position: relative;
   z-index: 2;
+  min-width: 300px;
   width: fit-content;
   margin: 0 50%;
   transform: translateX(-50%);
@@ -20,12 +21,12 @@ export const Wrapper = styled.div`
 
 
   ${({ mode }) => mode === "artworks" && `
-    height: 568px;
+    height: 600px;
     @media (max-width: 930px) { height: 1120px }
   `}
 
   ${({ mode }) => mode === "photos" && `
-    height: 729px;
+    height: 762px;
     @media (max-width: 930px) { height: 1281px }
   `}
   
@@ -108,12 +109,17 @@ export const RoundButton = styled.button`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: white;
   border: none;
+  box-shadow: 1px 0px 5px black, 0px 1px 5px black;
+  background: white;
   outline: none;
   cursor: pointer;
   margin-top: 10px;
   user-select: none;
+
+  :hover, :focus, :active {
+    opacity: 0.7;
+  }
 
   img {
     width: 70%;
@@ -132,8 +138,15 @@ export const SwitchBackground = styled.span`
   height: 12px;
   background: white;
   border-radius: 20px;
-  border: 2px solid black;
+  border: 1px solid black;
+  box-shadow: 1px 0px 2px black, 0px 1px 2px black;
   cursor: pointer;
+
+
+  ${({ previewChanger }) => previewChanger && `
+    margin: 10px 0 10px 3px;
+    position: relative;
+  `}
 `;
 export const SwitchButton = styled.button`
   position: absolute;
@@ -149,7 +162,8 @@ export const SwitchButton = styled.button`
   cursor: pointer;
   transition: 0.2s ease;
 
-  ${({ isSwitchAtLeft }) => !isSwitchAtLeft && `left: 12px`}
+
+  ${({ isSwitchAtLeft }) => !isSwitchAtLeft && `left: 8px`}
 `;
 
 
@@ -172,12 +186,22 @@ export const Input = styled.input`
   padding: 5px;
   font-size: 18px;
   width: 250px;
+
+
+  @media (max-width: 930px) {
+    width: 100%;
+  }
 `;
 export const Select = styled.select`
-  width: 100%;
+  width: 250px;
   padding: 5px;
   max-height: 100px;
   user-select: none;
+  
+
+  @media (max-width: 930px) {
+    width: 100%;
+  }
 `;
 export const Option = styled.option`
   width: 100%;
@@ -207,15 +231,20 @@ export const LivePreviewContainer = styled.section`
 export const LivePreviewPhotoWrapper = styled.div`
   height: 660px;
   width: 498.66px;
+  
+
+  @media (max-width: 650px) {
+    width: 100%;
+  }
+
 
   ${({ mode }) => mode === "artworks" && `
     height: 498.66px;
     width: 498.66px;
   `}
-  
-  @media (max-width: 650px) {
-    width: 100%;
-  }
+  ${({ isDesktopPreview }) => !isDesktopPreview && `
+    width: 300px;
+  `}
 `;
 export const LivePreviewHeading = styled.h2`
   font-weight: 100;   

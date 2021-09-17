@@ -1,7 +1,7 @@
 // IMPORTS
 
 import { React, useState } from 'react';
-import { ManageContent } from './ManageContent';
+import { Manager } from './Manager';
 import { FormSelectingButton } from './FormSelectingButton';
 import { Switch } from './Switch';
 
@@ -49,7 +49,7 @@ export const App = () => {
       </ButtonsSection>
 
       <FormSection>
-        <ManageContent mode={ mode } actionType={ actionType } />
+        <Manager mode={ mode } actionType={ actionType } />
       </FormSection>
 
     </Wrapper>
