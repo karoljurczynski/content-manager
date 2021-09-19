@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { Switch } from './Switch';
 import { getDataFromDatabase, sendDataToDatabase, getPercentValueFromObjectPosition } from "./functions";
 
-import {Form, Heading, Container, Label, Select,
-        Option, Input, Button, LivePreviewContainer,
-        LivePreviewPhotoWrapper, LivePreviewPhoto,
-        FormSectionWrapper, LivePreviewHeading} from "./styles";
+import { Form, Heading, Container, Label, Select,
+         Option, Input, Button, LivePreviewContainer,
+         LivePreviewPhotoWrapper, LivePreviewPhoto,
+         FormSectionWrapper, LivePreviewHeading } from "./styles";
 
   
 
@@ -46,7 +46,12 @@ export const Manager = ({ mode, actionType }) => {
     setPercentYMobile(50);
   }
   const fetchDataFromDatabaseToImagesArray = async () => {
-    setImagesArray(await getDataFromDatabase(mode));
+    try {
+      setImagesArray(await getDataFromDatabase(mode));
+    }
+    catch {
+      setImagesArray({src: "", alt: "", title: "Error! Refresh and try again."});
+    }
   }
   
 
@@ -204,7 +209,7 @@ export const Manager = ({ mode, actionType }) => {
     const newArray = imagesArray;
     newArray.splice(imageId, 1);
     sendDataToDatabase(mode, newArray);
-    resetImageValues();
+    setImagesArray(await getDataFromDatabase(mode));
   }
   const handleImageDeleteCancel = (e) => {
     e.preventDefault();

@@ -2,21 +2,33 @@ import { doc, getDoc, setDoc } from "@firebase/firestore";
 import { db } from "./firebaseConfig";
 
 
-const databaseRef = doc(db, "images/content");
+const databaseRef = doc(db, "images/test");
 
 
 export const getDataFromDatabase = async (mode) => {
-  const databaseContent = await getDoc(databaseRef);
-  if (mode === "photos")
-    return await databaseContent.data().photos;
-  else
-    return await databaseContent.data().artworks;
+  try {
+    const databaseContent = await getDoc(databaseRef);
+    if (mode === "photos")
+      return await databaseContent.data().photos;
+    else
+      return await databaseContent.data().artworks;
+  }
+  catch {
+    window.alert("Error with database connection! Refresh and try again.");
+    return new Error();
+  }
 }
 export const sendDataToDatabase = async (mode, newArray) => {
-  if (mode === "photos")
-    setDoc(databaseRef, {photos: newArray}, {merge: true});
-  else
-    setDoc(databaseRef, {artworks: newArray}, {merge: true});  
+  try {
+    if (mode === "photos")
+      setDoc(databaseRef, {photos: newArray}, {merge: true});
+    else
+      setDoc(databaseRef, {artworks: newArray}, {merge: true}); 
+    window.alert("Changes saved successfully! Refresh your website."); 
+  }
+  catch {
+    window.alert("Error with saving changes! Try again.")
+  }
 }
 export const getPercentValueFromObjectPosition = (objectPosition, axis) => {
   return objectPosition.split(" ")[axis === "x" ? 0 : 1].split("%")[0];
