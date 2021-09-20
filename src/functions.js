@@ -14,7 +14,7 @@ export const getDataFromDatabase = async (mode) => {
       return await databaseContent.data().artworks;
   }
   catch {
-    window.alert("Error with database connection! Refresh and try again.");
+    window.alert("Error with database connection! Try again.");
     return new Error();
   }
 }
@@ -24,7 +24,6 @@ export const sendDataToDatabase = async (mode, newArray) => {
       setDoc(databaseRef, {photos: newArray}, {merge: true});
     else
       setDoc(databaseRef, {artworks: newArray}, {merge: true}); 
-    window.alert("Changes saved successfully! Refresh your website."); 
   }
   catch {
     window.alert("Error with saving changes! Try again.")

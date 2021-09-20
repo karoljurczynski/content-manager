@@ -7,7 +7,8 @@ import { getDataFromDatabase, sendDataToDatabase, getPercentValueFromObjectPosit
 import { Form, Heading, Container, Label, Select,
          Option, Input, Button, LivePreviewContainer,
          LivePreviewPhotoWrapper, LivePreviewPhoto,
-         FormSectionWrapper, LivePreviewHeading } from "./styles";
+         FormSectionWrapper, LivePreviewHeading,
+         DragListContainer, DragListItem } from "./styles";
 
   
 
@@ -30,6 +31,12 @@ export const Manager = ({ mode, actionType }) => {
   const [percentXMobile, setPercentXMobile] = useState(50);
   const [percentYMobile, setPercentYMobile] = useState(50);
 
+  const [isRandomOrderOn, setIsRandomOrderOn] = useState(true);
+
+  const [dragAndDropData, setDragAndDropData] = useState([]);
+  const [draggableObject, setDraggableObject] = useState({});
+  const [dropLocation, setDropLocation] = useState(0);
+
 
   // TOOL FUNCTIONS
 
@@ -45,13 +52,24 @@ export const Manager = ({ mode, actionType }) => {
     setPercentXMobile(50);
     setPercentYMobile(50);
   }
+  const blockAllButtons = () => {
+    console.log(document.querySelectorAll("button"));
+    document.querySelectorAll("button").forEach(button => {
+      button.disabled = true;
+    });
+  }
   const fetchDataFromDatabaseToImagesArray = async () => {
-    try {
-      setImagesArray(await getDataFromDatabase(mode));
-    }
-    catch {
-      setImagesArray({src: "", alt: "", title: "Error! Refresh and try again."});
-    }
+    const databaseData = await getDataFromDatabase(mode);
+    setImagesArray(databaseData);
+    if (!databaseData.length) {
+      blockAllButtons();
+      window.location.reload();
+    }  
+  }
+  const makeDragAndDropDataArray = () => {
+    return imagesArray.map((image, index) => {
+      return {draggable: true, content: image.title, index: index};
+    });
   }
   
 
@@ -69,7 +87,12 @@ export const Manager = ({ mode, actionType }) => {
   useEffect(() => {
     setIsDesktopPreview(true);
     resetImageValues();
-  }, [ actionType ])
+  }, [ actionType ]);
+
+  // Creates dragAndDropData from imagesArray when it's updated
+  useEffect(() => {
+    setDragAndDropData(makeDragAndDropDataArray());
+  }, [ imagesArray ]);
 
   // Updates object-position for desktop to display image preview correctly when sliders are moved
   useEffect(() => { 
@@ -127,6 +150,9 @@ export const Manager = ({ mode, actionType }) => {
   const handlePercentYMobileChange = (e) => {
     setPercentYMobile(e.target.value);
   }
+  const handleRandomOrderCheckbox = (e) => {
+    setIsRandomOrderOn(e.target.checked);
+  }
   const changePreviewType = () => {
     setIsDesktopPreview(!isDesktopPreview);
   }
@@ -137,21 +163,26 @@ export const Manager = ({ mode, actionType }) => {
 
   const handleImageAdd = async (e) => {
     e.preventDefault();
-    const newArray = imagesArray;
-    const newImage = {
-      alt: imageTitle ? imageTitle : `Image ${imagesArray.length}`,
-      src: imageSrc,
-      title: imageTitle,
-      style: {
-        objectPosition: imageDesktopObjectPosition
-      },
-      mobileStyles: {
-        objectPosition: imageMobileObjectPosition
+    if (imageSrc.length) {
+      const newArray = imagesArray;
+      const newImage = {
+        alt: imageTitle ? imageTitle : `Image ${imagesArray.length}`,
+        src: imageSrc,
+        title: imageTitle,
+        style: {
+          objectPosition: imageDesktopObjectPosition
+        },
+        mobileStyles: {
+          objectPosition: imageMobileObjectPosition
+        }
       }
+      newArray.push(newImage);
+      sendDataToDatabase(mode, newArray);
+      resetImageValues();
     }
-    newArray.push(newImage);
-    sendDataToDatabase(mode, newArray);
-    resetImageValues();
+    else {
+      alert("Image source field cannot be empty!");
+    }
   }
   const handleImageAddClear = (e) => {
     e.preventDefault();
@@ -164,24 +195,30 @@ export const Manager = ({ mode, actionType }) => {
 
   const handleImageEdit = async (e) => {
     e.preventDefault();
-    const newArray = imagesArray;
-    const newImage = {
-      alt: imageTitle ? imageTitle : `Image ${imageId}`,
-      src: imageSrc,
-      title: imageTitle,
-      style: {
-        objectPosition: imageDesktopObjectPosition
-      },
-      mobileStyles: {
-        objectPosition: imageMobileObjectPosition
+    if (imageSrc.length) {
+      const newArray = imagesArray;
+      const newImage = {
+        alt: imageTitle ? imageTitle : `Image ${imageId}`,
+        src: imageSrc,
+        title: imageTitle,
+        style: {
+          objectPosition: imageDesktopObjectPosition
+        },
+        mobileStyles: {
+          objectPosition: imageMobileObjectPosition
+        }
       }
+      newArray[imageId] = newImage;
+      sendDataToDatabase(mode, newArray);
+      setImagesArray(await getDataFromDatabase(mode));
     }
-    newArray[imageId] = newImage;
-    sendDataToDatabase(mode, newArray);
-    setImagesArray(await getDataFromDatabase(mode));
+    else {
+      alert("Image source field cannot be empty!");
+    }
   }
   const handleImageEditReset = (e) => {
     e.preventDefault();
+    fetchDataFromDatabaseToImagesArray();
     if (imageId.length) {
       setImageSrc(imagesArray[imageId].src);
       setImageTitle(imagesArray[imageId].title);
@@ -217,6 +254,38 @@ export const Manager = ({ mode, actionType }) => {
   }
 
 
+  // DRAG AND DROP
+
+
+  useEffect(() => {
+    imagesArray.forEach(image => {
+      console.log(image);
+    })
+  }, [imagesArray])
+
+  const handleDragStart = (e) => {
+    imagesArray.forEach((image, index) => {
+      if (image.title === e.target.textContent) {
+        setDraggableObject(imagesArray[index]);
+      }
+    });
+    setDropLocation(e.target.id);
+  }
+  const handleDragEnd = (e) => {
+    const newArray = imagesArray;
+    const oldObject = imagesArray[dropLocation];
+    newArray[dropLocation] = draggableObject;
+    newArray[e.target.id] = oldObject;
+    setImagesArray(newArray);
+    sendDataToDatabase(mode, imagesArray);
+    setDraggableObject({});
+    setDropLocation(0);
+  }
+  const handleDragOver = (e) => {
+    setDropLocation(e.target.id);
+  }
+  
+
   // JSX
 
 
@@ -225,43 +294,43 @@ export const Manager = ({ mode, actionType }) => {
     <Form>
         <Heading>{actionType} {mode === "photos" ? "photo" : "artwork"}</Heading>
         { (imagesArray && actionType !== "Add") &&
-          <Container>
-          <Label for="imageSelect">Select a {mode === "photos" ? "photo" : "artwork"} to {actionType}</Label>
-          <Select name="imageSelect" size="5" onChange={handleImageSelect}>
-            { imagesArray.map((image, index) => {
-              return (
-                <Option key={index} value={index}>{image.title ? image.title : image.src}</Option>
-              )
-              })
-            }
-          </Select>
-        </Container>
+            <Container>
+              <Label htmlFor="imageSelect">Select a {mode === "photos" ? "photo" : "artwork"} to {actionType}</Label>
+              <Select name="imageSelect" size="5" onChange={handleImageSelect}>
+                { imagesArray.map((image, index) => {
+                  return (
+                    <Option key={index} value={index}>{image.title ? image.title : image.src}</Option>
+                  )
+                  })
+                }
+              </Select>
+            </Container>
         }
 
         { actionType !== "Delete" &&
           <>
-          <Container>
-            <Label for="srcInput">External URL of {mode === "photos" ? "photo" : "artwork"}</Label>
-            <Input type="text" name="srcInput" value={imageSrc} onChange={handleSrcOnChange}></Input>
-          </Container>
+            <Container>
+              <Label htmlFor="srcInput">External URL of {mode === "photos" ? "photo" : "artwork"}</Label>
+              <Input type="text" name="srcInput" value={imageSrc} onChange={handleSrcOnChange} required></Input>
+            </Container>
 
-          <Container>
-            <Label for="titleInput">{ mode === "photos" ? "Photo" : "Artwork" } title (optional)</Label>
-            <Input type="text" name="titleInput" value={imageTitle} onChange={handleTitleChange}></Input>
-          </Container>
+            <Container>
+              <Label htmlFor="titleInput">{ mode === "photos" ? "Photo" : "Artwork" } title (optional)</Label>
+              <Input type="text" name="titleInput" value={imageTitle} onChange={handleTitleChange}></Input>
+            </Container>
           </>
         }
         
         { (imageSrc && actionType !== "Delete" && isDesktopPreview) &&
           <>                                     
             <Container>
-              <Label for="percentXDesktopSlider">Set horizontal position on desktop</Label>
+              <Label htmlFor="percentXDesktopSlider">Set horizontal position on desktop</Label>
               <Input type="range" name="percentXDesktopSlider" min="0" max="100" step="1" value={percentXDesktop} onChange={handlePercentXDesktopChange}></Input>
               <Label>{percentXDesktop}%</Label>
             </Container> 
 
             <Container>
-              <Label for="percentYDesktopSlider">Set vertical position on desktop</Label>
+              <Label htmlFor="percentYDesktopSlider">Set vertical position on desktop</Label>
               <Input type="range" name="percentYDesktopSlider" min="0" max="100" step="1" value={percentYDesktop} onChange={handlePercentYDesktopChange}></Input>
               <Label>{percentYDesktop}%</Label>
             </Container>
@@ -269,36 +338,61 @@ export const Manager = ({ mode, actionType }) => {
         }
 
         { (imageSrc && actionType !== "Delete" && !isDesktopPreview) &&
-          <>                                     
+          <>                               
             <Container>
-              <Label for="percentXMobileSlider">Set horizontal position on mobile</Label>
+              <Label htmlFor="percentXMobileSlider">Set horizontal position on mobile</Label>
               <Input type="range" name="percentXMobileSlider" min="0" max="100" step="1" value={percentXMobile} onChange={handlePercentXMobileChange}></Input>
               <Label>{percentXMobile}%</Label>
             </Container> 
 
             <Container>
-              <Label for="percentYMobileSlider">Set vertical position on mobile</Label>
+              <Label htmlFor="percentYMobileSlider">Set vertical position on mobile</Label>
               <Input type="range" name="percentYMobileSlider" min="0" max="100" step="1" value={percentYMobile} onChange={handlePercentYMobileChange}></Input>
               <Label>{percentYMobile}%</Label>
             </Container>     
           </>
-        }  
+        }
 
-
+        { actionType === "Edit" &&
+            <Container>
+              <Label>Display {mode} in random order</Label>
+              <Input type="checkbox" name="isImagesLoadRandomly" onChange={handleRandomOrderCheckbox} checked={isRandomOrderOn}></Input>
+            </Container>
+        }
+        { (dragAndDropData && !isRandomOrderOn) &&
+          <Container>
+            <Label>Set {mode} order</Label>
+            <DragListContainer>
+              { imagesArray.map((image, index) => {
+                  return (
+                    <DragListItem
+                      key={index}
+                      id={index}
+                      draggable={true}
+                      onDragStart={handleDragStart}
+                      onDragEnter={handleDragOver}
+                      onDragEnd={handleDragEnd}>
+                      {image.title}
+                    </DragListItem>
+                  )
+                })
+              }
+            </DragListContainer>
+          </Container>
+        }
+ 
         { actionType === "Add" &&
           <Container row>
             <Button type="button" onClick={handleImageAdd}>Add</Button>
             <Button type="button" onClick={handleImageAddClear}>Clear</Button>
           </Container>
         }
-
         { actionType === "Edit" &&
           <Container row>
             <Button type="button" onClick={handleImageEdit}>Save</Button>
             <Button type="button" onClick={handleImageEditReset}>Reset</Button>
           </Container>
         }
-
         { actionType === "Delete" &&
           <Container row>
             <Button type="button" onClick={handleImageDelete}>Delete</Button>

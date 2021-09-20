@@ -163,7 +163,7 @@ export const SwitchButton = styled.button`
   transition: 0.2s ease;
 
 
-  ${({ isSwitchAtLeft }) => !isSwitchAtLeft && `left: 8px`}
+  ${({ isSwitchAtLeft }) => !isSwitchAtLeft && `left: 11px`}
 `;
 
 
@@ -187,6 +187,16 @@ export const Input = styled.input`
   font-size: 18px;
   width: 250px;
 
+  &[type="checkbox"] {
+    margin: 5px 0 0;
+    width: auto;
+    padding: 0;
+    cursor: pointer;
+  }
+  &[type="range"] {
+    cursor: pointer;
+  }
+
 
   @media (max-width: 930px) {
     width: 100%;
@@ -205,16 +215,42 @@ export const Select = styled.select`
 `;
 export const Option = styled.option`
   width: 100%;
+  cursor: pointer;
 `;
 export const Button = styled.button`
   font-size: 16px;
   padding: 6px 14px;
   margin-right: 10px;
   user-select: none;
+  cursor: pointer;
 `;
 export const Label = styled.label`
+  margin: 0;
   font-size: 16px;
   margin-bottom: 2px;
+`;
+export const DragListContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+`;
+export const DragListItem = styled.p`
+  display: block;
+  width: 100%;
+  padding: 3px;
+  margin: 0;
+  border: 1px solid black;
+  text-align: left;
+  user-select: none;
+  cursor: pointer;
+
+  ${({ draggable }) => draggable && `
+    color: red;
+    background-color: yellow;
+  `}
+
 `;
 
 
