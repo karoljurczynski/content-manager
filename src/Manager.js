@@ -19,6 +19,7 @@ export const Manager = ({ mode, actionType }) => {
 
   const [imagesArray, setImagesArray] = useState([]);
   const [isDesktopPreview, setIsDesktopPreview] = useState(true);
+  const [isRandomOrderOn, setIsRandomOrderOn] = useState(true);
 
   const [imageSrc, setImageSrc] = useState("");
   const [imageId, setImageId] = useState("");
@@ -31,11 +32,9 @@ export const Manager = ({ mode, actionType }) => {
   const [percentXMobile, setPercentXMobile] = useState(50);
   const [percentYMobile, setPercentYMobile] = useState(50);
 
-  const [isRandomOrderOn, setIsRandomOrderOn] = useState(true);
-
-  const [dragAndDropData, setDragAndDropData] = useState([]);
   const [draggableObject, setDraggableObject] = useState({});
   const [dropLocation, setDropLocation] = useState(0);
+  const [isMessageShown, setIsMessageShown] = useState(false);
 
 
   // TOOL FUNCTIONS
@@ -66,11 +65,6 @@ export const Manager = ({ mode, actionType }) => {
       window.location.reload();
     }  
   }
-  const makeDragAndDropDataArray = () => {
-    return imagesArray.map((image, index) => {
-      return {draggable: true, content: image.title, index: index};
-    });
-  }
   
 
   // EFFECTS
@@ -88,11 +82,6 @@ export const Manager = ({ mode, actionType }) => {
     setIsDesktopPreview(true);
     resetImageValues();
   }, [ actionType ]);
-
-  // Creates dragAndDropData from imagesArray when it's updated
-  useEffect(() => {
-    setDragAndDropData(makeDragAndDropDataArray());
-  }, [ imagesArray ]);
 
   // Updates object-position for desktop to display image preview correctly when sliders are moved
   useEffect(() => { 
@@ -218,7 +207,6 @@ export const Manager = ({ mode, actionType }) => {
   }
   const handleImageEditReset = (e) => {
     e.preventDefault();
-    fetchDataFromDatabaseToImagesArray();
     if (imageId.length) {
       setImageSrc(imagesArray[imageId].src);
       setImageTitle(imagesArray[imageId].title);
@@ -257,12 +245,6 @@ export const Manager = ({ mode, actionType }) => {
   // DRAG AND DROP
 
 
-  useEffect(() => {
-    imagesArray.forEach(image => {
-      console.log(image);
-    })
-  }, [imagesArray])
-
   const handleDragStart = (e) => {
     imagesArray.forEach((image, index) => {
       if (image.title === e.target.textContent) {
@@ -280,6 +262,8 @@ export const Manager = ({ mode, actionType }) => {
     sendDataToDatabase(mode, imagesArray);
     setDraggableObject({});
     setDropLocation(0);
+    setIsMessageShown(true);
+    setTimeout(() => setIsMessageShown(false), 1000);
   }
   const handleDragOver = (e) => {
     setDropLocation(e.target.id);
@@ -359,7 +343,7 @@ export const Manager = ({ mode, actionType }) => {
               <Input type="checkbox" name="isImagesLoadRandomly" onChange={handleRandomOrderCheckbox} checked={isRandomOrderOn}></Input>
             </Container>
         }
-        { (dragAndDropData && !isRandomOrderOn) &&
+        { (imagesArray && !isRandomOrderOn) &&
           <Container>
             <Label>Set {mode} order</Label>
             <DragListContainer>
@@ -378,6 +362,9 @@ export const Manager = ({ mode, actionType }) => {
                 })
               }
             </DragListContainer>
+            {isMessageShown &&
+              <p>Images' order saved.</p>
+            }
           </Container>
         }
  
