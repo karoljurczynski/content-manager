@@ -231,26 +231,22 @@ export const Label = styled.label`
 `;
 export const DragListContainer = styled.div`
   width: 100%;
+  height: 120px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
+  border: 1px solid gray;
+  box-sizing: border-box;
 `;
 export const DragListItem = styled.p`
   display: block;
   width: 100%;
   padding: 3px;
   margin: 0;
-  border: 1px solid black;
   text-align: left;
   user-select: none;
   cursor: pointer;
-
-  ${({ draggable }) => draggable && `
-    color: red;
-    background-color: yellow;
-  `}
-
 `;
 
 

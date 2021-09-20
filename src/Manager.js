@@ -34,7 +34,6 @@ export const Manager = ({ mode, actionType }) => {
 
   const [draggableObject, setDraggableObject] = useState({});
   const [dropLocation, setDropLocation] = useState(0);
-  const [isMessageShown, setIsMessageShown] = useState(false);
 
 
   // TOOL FUNCTIONS
@@ -74,6 +73,7 @@ export const Manager = ({ mode, actionType }) => {
   useEffect(() => { 
     fetchDataFromDatabaseToImagesArray();
     setIsDesktopPreview(true);
+    setIsRandomOrderOn(true);
     resetImageValues(); 
   }, [ mode ]);
 
@@ -184,6 +184,8 @@ export const Manager = ({ mode, actionType }) => {
 
   const handleImageEdit = async (e) => {
     e.preventDefault();
+    sendDataToDatabase(mode, imagesArray);
+    fetchDataFromDatabaseToImagesArray();
     if (imageSrc.length) {
       const newArray = imagesArray;
       const newImage = {
@@ -200,9 +202,6 @@ export const Manager = ({ mode, actionType }) => {
       newArray[imageId] = newImage;
       sendDataToDatabase(mode, newArray);
       setImagesArray(await getDataFromDatabase(mode));
-    }
-    else {
-      alert("Image source field cannot be empty!");
     }
   }
   const handleImageEditReset = (e) => {
@@ -222,6 +221,10 @@ export const Manager = ({ mode, actionType }) => {
         setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "x"));
         setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "y"));
       }
+      fetchDataFromDatabaseToImagesArray();
+    }
+    else {
+      fetchDataFromDatabaseToImagesArray();
     }
   }
 
@@ -252,6 +255,7 @@ export const Manager = ({ mode, actionType }) => {
       }
     });
     setDropLocation(e.target.id);
+    e.target.style.fontWeight = "bold";
   }
   const handleDragEnd = (e) => {
     const newArray = imagesArray;
@@ -259,17 +263,19 @@ export const Manager = ({ mode, actionType }) => {
     newArray[dropLocation] = draggableObject;
     newArray[e.target.id] = oldObject;
     setImagesArray(newArray);
-    sendDataToDatabase(mode, imagesArray);
     setDraggableObject({});
     setDropLocation(0);
-    setIsMessageShown(true);
-    setTimeout(() => setIsMessageShown(false), 1000);
+    e.target.style.fontWeight = "normal";
   }
-  const handleDragOver = (e) => {
+  const handleDragEnter = (e) => {
     setDropLocation(e.target.id);
+    e.target.style.borderTop = "2px solid red";
   }
-  
+  const handleDragLeave = (e) => {
+    e.target.style.borderTop = "none";
+  }
 
+  
   // JSX
 
 
@@ -354,7 +360,8 @@ export const Manager = ({ mode, actionType }) => {
                       id={index}
                       draggable={true}
                       onDragStart={handleDragStart}
-                      onDragEnter={handleDragOver}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
                       onDragEnd={handleDragEnd}>
                       {image.title}
                     </DragListItem>
@@ -362,9 +369,6 @@ export const Manager = ({ mode, actionType }) => {
                 })
               }
             </DragListContainer>
-            {isMessageShown &&
-              <p>Images' order saved.</p>
-            }
           </Container>
         }
  
