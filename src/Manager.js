@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Switch } from './Switch';
-import { getDataFromDatabase, sendDataToDatabase, getPercentValueFromObjectPosition } from "./functions";
+import { getDataFromDatabase, 
+         sendDataToDatabase,
+         uploadFileToStorage,
+         loadFileFromStorage,
+         deleteFileFromStorage, 
+         getPercentValueFromObjectPosition } from "./functions";
 
 import { Form, Heading, Container, Label, Select, Warning,
          Option, Input, Button, LivePreviewContainer,
@@ -22,6 +27,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
   const [initialRandomOrder, setInitialRandomOrder] = useState(true);
   const [isRandomOrderOn, setIsRandomOrderOn] = useState(true);
 
+  const [fileName, setFileName] = useState("");
   const [imageSrc, setImageSrc] = useState("");
   const [imageId, setImageId] = useState("");
   const [imageTitle, setImageTitle] = useState("");
@@ -40,6 +46,9 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
   const resetImageValues = () => {
     setImageId(0);
+    if (document.querySelector("#fileInput"))
+      document.querySelector("#fileInput").value = null;
+    setFileName("");
     setImageSrc("");
     setImageTitle("");
     setImageDesktopObjectPosition("50% 50%");
@@ -61,7 +70,8 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     if (!databaseData.length) {
       blockAllButtons();
       window.location.reload();
-    }  
+    }
+    console.log(imagesArray.length);
   }
   const unselectAllImages = () => {
     document.querySelectorAll("option").forEach(option => {
@@ -102,7 +112,9 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
   // Gets image's src, title and other values from array when imageId is changed
   useEffect(() => {
     if (imageId.length) {
+      console.log(imageId);
       setImageSrc(imagesArray[imageId].src);
+      setFileName(imagesArray[imageId].name);
       setImageTitle(imagesArray[imageId].title);
 
       if (imagesArray[imageId].style) {
@@ -148,8 +160,10 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
   const changePreviewType = () => {
     setIsDesktopPreview(!isDesktopPreview);
   }  
-  const handleFileUpload = (e) => {
-    console.log(e.target.files[0])
+  const handleFileUpload = async (e) => {
+    await uploadFileToStorage(mode, e.target.files[0]);
+    setFileName(e.target.files[0].name);
+    setImageSrc(await loadFileFromStorage(mode, e.target.files[0].name));
   }
 
 
@@ -162,6 +176,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
       const newArray = imagesArray;
       const newImage = {
         alt: imageTitle ? imageTitle : `Image ${imagesArray.length}`,
+        name: fileName,
         src: imageSrc,
         title: imageTitle,
         style: {
@@ -176,11 +191,13 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
       resetImageValues();
     }
     else {
-      alert("Image source field cannot be empty!");
+      alert("No photo selected!");
     }
   }
   const handleImageAddClear = (e) => {
     e.preventDefault();
+    if (fileName)
+      deleteFileFromStorage(mode, fileName);
     resetImageValues();
   }
 
@@ -198,6 +215,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
       const newArray = imagesArray;
       const newImage = {
         alt: imageTitle ? imageTitle : `Image ${imageId}`,
+        name: fileName,
         src: imageSrc,
         title: imageTitle,
         style: {
@@ -215,6 +233,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
   const handleImageEditReset = (e) => {
     e.preventDefault();
     setImageSrc(imagesArray[imageId].src);
+    setFileName(imagesArray[imageId].name);
     setImageTitle(imagesArray[imageId].title);
 
     if (imagesArray[imageId].style) {
@@ -238,10 +257,15 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     const newArray = imagesArray;
     newArray.splice(imageId, 1);
     sendDataToDatabase(mode, newArray, isRandomOrderOn);
-    setImagesArray(await getDataFromDatabase(mode));
+    fetchDataFromDatabaseToImagesArray();
+    resetImageValues();
+    unselectAllImages();
+    if (fileName)
+      deleteFileFromStorage(mode, fileName);
   }
   const handleImageDeleteCancel = (e) => {
     e.preventDefault();
+    unselectAllImages();
     resetImageValues();
   }
 
@@ -251,7 +275,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
   const handleDragStart = (e) => {
     imagesArray.forEach((image, index) => {
-      if (image.title === e.target.textContent) {
+      if (image.name === e.target.textContent) {
         setDraggableObject(imagesArray[index]);
       }
     });
@@ -275,6 +299,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
     newArray[dropIndex] = draggableObject;
     setImagesArray(newArray);
+    console.log(imagesArray);
     setDraggableObject({});
     setDropLocation(null);
     e.target.style.fontWeight = "normal";
@@ -294,8 +319,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     });
   }
   const handleImagesOrderSave = (e) => {
-    e.preventDefault();
-    resetImageValues();
+    e.preventDefault(); // bug - order displaying
     sendDataToDatabase(mode, imagesArray, isRandomOrderOn);
     fetchDataFromDatabaseToImagesArray();
   }
@@ -319,7 +343,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
               <Select name="imageSelect" size="5" onChange={handleImageSelect}>
                 { imagesArray.map((image, index) => {
                   return (
-                    <Option key={index} value={index}>{image.title ? image.title : image.src}</Option>
+                    <Option key={index} value={index}>{image.title ? image.title : image.name}</Option>
                   )
                   })
                 }
@@ -329,15 +353,15 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
         { actionType === "Add" && 
           <Container>
             <Label htmlFor="imageFile">Select a photo to add</Label>
-            <Input type="file" name="imageFile" accept="image/*" onChange={handleFileUpload}></Input>
+            <Input type="file" name="imageFile" id="fileInput" accept="image/*" onChange={handleFileUpload}></Input>
             <Warning>Make sure your {mode === "photos" ? "photo" : "artwork"} has lower resolution than original and it is compressed in app like <a href="https://tinypng.com" target="_blank">tinyPNG</a>.<br/>It will definitely increase performance of your website.</Warning>
           </Container>
         }  
 
-        { ((actionType !== "Delete") && (actionType !== "Order")) &&
+        { ((actionType !== "Delete") && (actionType !== "Order") && imageSrc) &&
           <>
             <Container>
-              <Label htmlFor="srcInput">External URL of {mode === "photos" ? "photo" : "artwork"}</Label>
+              <Label htmlFor="srcInput">URL of {mode === "photos" ? "photo" : "artwork"}</Label>
               <Input type="text" name="srcInput" value={imageSrc} onChange={handleSrcOnChange} required></Input>
             </Container>
 
@@ -376,7 +400,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
         }
         { (imagesArray && actionType === "Order") &&
           <Container>
-            <Label>Set {mode} order</Label>
+            <Label>Set {mode === "photos" ? "photos'" : "artworks'"} order</Label>
             <DragListContainer>
               { imagesArray.map((image, index) => {
                   return (
@@ -389,7 +413,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
                       onDragEnter={handleDragEnter}
                       onDragLeave={handleDragLeave}
                       onDragEnd={handleDragEnd}>
-                      {image.title}
+                      {image.name}
                     </DragListItem>
                   )
                 })
@@ -406,7 +430,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
         }
         { actionType === "Edit" &&
           <Container row>
-            <Button type="button" onClick={handleImageEdit}>Edit</Button>
+            <Button type="button" onClick={handleImageEdit}>Save</Button>
             <Button type="button" onClick={handleImageEditReset}>Reset</Button>
           </Container>
         }

@@ -1,8 +1,10 @@
 import { doc, getDoc, setDoc } from "@firebase/firestore";
 import { db, storage } from "./firebaseConfig";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "@firebase/storage";
 
 
 const databaseRef = doc(db, "images/test");
+
 
 
 export const getDataFromDatabase = async (mode) => {
@@ -29,14 +31,20 @@ export const sendDataToDatabase = async (mode, newArray, isRandomOrder) => {
     window.alert("Error with saving changes! Try again.")
   }
 }
-export const uploadFileToStorage = async () => {
-
+export const uploadFileToStorage = async (mode, file) => {
+  const storageRef = ref(storage, `${mode}/${file.name}`);
+  try { await uploadBytes(storageRef, file) }
+  catch { window.alert("Error with file uploading! Try again.") }
 }
-export const loadFileFromStorage = async () => {
-  
+export const loadFileFromStorage = async (mode, fileName) => {
+  const storageRef = ref(storage, `${mode}/${fileName}`);
+  try { return await getDownloadURL(storageRef) }
+  catch { window.alert("Error with file loading! Try again.") }
 }
-export const deleteFileFromStorage = async () => {
-  
+export const deleteFileFromStorage = async (mode, fileName) => {
+  const storageRef = ref(storage, `${mode}/${fileName}`);
+  try { await deleteObject(storageRef) }
+  catch { window.alert("Error with file removing! Try again.") }
 }
 export const getPercentValueFromObjectPosition = (objectPosition, axis) => {
   return objectPosition.split(" ")[axis === "x" ? 0 : 1].split("%")[0];
