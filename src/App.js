@@ -16,6 +16,7 @@ export const App = () => {
 
   const [mode, setMode] = useState("photos");
   const [actionType, setActionType] = useState("Add");
+  const [isOrderButtonDisabled, setIsOrderButtonDisabled] = useState(true);
 
 
   // FORM HANDLERS
@@ -30,10 +31,16 @@ export const App = () => {
   const handleDeleteForm = () => {
     setActionType("Delete");
   }
+  const handleOrderForm = () => {
+    setActionType("Order");
+  }
+  const changeOrderButtonStatus = (boolean) => {
+    setIsOrderButtonDisabled(boolean)
+  }
   const handleSwitch = () => {
     mode === "photos" ? setMode("artworks") : setMode("photos");
   }
-
+  
 
   // JSX
 
@@ -45,11 +52,12 @@ export const App = () => {
         <FormSelectingButton formType="Add" onClickFunction={ handleAddForm } />
         <FormSelectingButton formType="Edit" onClickFunction={ handleEditForm } />
         <FormSelectingButton formType="Delete" onClickFunction={ handleDeleteForm } />
+        <FormSelectingButton disabled={ isOrderButtonDisabled ? true : false } formType="Order" onClickFunction={ handleOrderForm } />
         <Switch onClickFunction={ handleSwitch } />
       </ButtonsSection>
 
       <FormSection>
-        <Manager mode={ mode } actionType={ actionType } />
+        <Manager mode={ mode } actionType={ actionType } setIsOrderButtonDisabled={ changeOrderButtonStatus } />
       </FormSection>
 
     </Wrapper>

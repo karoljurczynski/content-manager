@@ -12,7 +12,7 @@ import { Form, Heading, Container, Label, Select,
 
   
 
-export const Manager = ({ mode, actionType }) => {
+export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
   // STATE
 
@@ -28,9 +28,7 @@ export const Manager = ({ mode, actionType }) => {
   const [imageMobileObjectPosition, setImageMobileObjectPosition] = useState("50% 50%");
 
   const [percentXDesktop, setPercentXDesktop] = useState(50);
-  const [percentYDesktop, setPercentYDesktop] = useState(50);
   const [percentXMobile, setPercentXMobile] = useState(50);
-  const [percentYMobile, setPercentYMobile] = useState(50);
 
   const [draggableObject, setDraggableObject] = useState({});
   const [dropLocation, setDropLocation] = useState(null);
@@ -46,9 +44,7 @@ export const Manager = ({ mode, actionType }) => {
     setImageDesktopObjectPosition("50% 50%");
     setImageMobileObjectPosition("50% 50%");
     setPercentXDesktop(50);
-    setPercentYDesktop(50);
     setPercentXMobile(50);
-    setPercentYMobile(50);
   }
   const blockAllButtons = () => {
     console.log(document.querySelectorAll("button"));
@@ -64,6 +60,11 @@ export const Manager = ({ mode, actionType }) => {
       window.location.reload();
     }  
   }
+  const unselectAllImages = () => {
+    document.querySelectorAll("option").forEach(option => {
+      option.selected = false;
+    });
+  }
   
 
   // EFFECTS
@@ -74,24 +75,26 @@ export const Manager = ({ mode, actionType }) => {
     fetchDataFromDatabaseToImagesArray();
     setIsDesktopPreview(true);
     setIsRandomOrderOn(true);
-    resetImageValues(); 
+    resetImageValues();
+    unselectAllImages(); 
   }, [ mode ]);
 
   // Reset image values and preview when actionType is changed (add/edit/delete)
   useEffect(() => {
     setIsDesktopPreview(true);
     resetImageValues();
+    unselectAllImages();
   }, [ actionType ]);
 
   // Updates object-position for desktop to display image preview correctly when sliders are moved
   useEffect(() => { 
-    setImageDesktopObjectPosition(`${ percentXDesktop }% ${ percentYDesktop }%`);
-  }, [ percentXDesktop, percentYDesktop ]);
+    setImageDesktopObjectPosition(`${ percentXDesktop }% 50%`);
+  }, [ percentXDesktop ]);
 
   // Updates object-position for mobile to display image preview correctly when sliders are moved
   useEffect(() => { 
-    setImageMobileObjectPosition(`${ percentXMobile }% ${ percentYMobile }%`);
-  }, [ percentXMobile, percentYMobile ]);
+    setImageMobileObjectPosition(`${ percentXMobile }% 50%`);
+  }, [ percentXMobile ]);
   
   // Gets image's src, title and other values from array when imageId is changed
   useEffect(() => {
@@ -102,16 +105,19 @@ export const Manager = ({ mode, actionType }) => {
       if (imagesArray[imageId].style) {
         setImageDesktopObjectPosition(imagesArray[imageId].style.objectPosition);
         setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
-        setPercentYDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
       }
 
       if (imagesArray[imageId].mobileStyles) {
         setImageMobileObjectPosition(imagesArray[imageId].mobileStyles.objectPosition);
         setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "x"));
-        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "y"));
       }
     }
   }, [ imageId ]);
+
+  // Disables order menu button when random order is true
+  useEffect(() => {
+    isRandomOrderOn ? setIsOrderButtonDisabled(true) : setIsOrderButtonDisabled(false);
+  }, [ isRandomOrderOn ])
 
 
   // HANDLERS
@@ -130,22 +136,16 @@ export const Manager = ({ mode, actionType }) => {
   const handlePercentXDesktopChange = (e) => {
     setPercentXDesktop(e.target.value);    
   }
-  const handlePercentYDesktopChange = (e) => {
-    setPercentYDesktop(e.target.value);
-  }
   const handlePercentXMobileChange = (e) => {
     setPercentXMobile(e.target.value);    
-  }
-  const handlePercentYMobileChange = (e) => {
-    setPercentYMobile(e.target.value);
   }
   const handleRandomOrderCheckbox = (e) => {
     setIsRandomOrderOn(e.target.checked);
   }
   const changePreviewType = () => {
     setIsDesktopPreview(!isDesktopPreview);
-  }
-  
+  }  
+
 
   // ADD IMAGE FUNCTIONS
 
@@ -184,8 +184,6 @@ export const Manager = ({ mode, actionType }) => {
 
   const handleImageEdit = async (e) => {
     e.preventDefault();
-    sendDataToDatabase(mode, imagesArray);
-    fetchDataFromDatabaseToImagesArray();
     if (imageSrc.length) {
       const newArray = imagesArray;
       const newImage = {
@@ -201,31 +199,24 @@ export const Manager = ({ mode, actionType }) => {
       }
       newArray[imageId] = newImage;
       sendDataToDatabase(mode, newArray);
-      setImagesArray(await getDataFromDatabase(mode));
+      fetchDataFromDatabaseToImagesArray();
     }
   }
   const handleImageEditReset = (e) => {
     e.preventDefault();
-    if (imageId.length) {
-      setImageSrc(imagesArray[imageId].src);
-      setImageTitle(imagesArray[imageId].title);
+    setImageSrc(imagesArray[imageId].src);
+    setImageTitle(imagesArray[imageId].title);
 
-      if (imagesArray[imageId].style) {
-        setImageDesktopObjectPosition(imagesArray[imageId].style.objectPosition);
-        setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
-        setPercentYDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
-      }
+    if (imagesArray[imageId].style) {
+      setImageDesktopObjectPosition(imagesArray[imageId].style.objectPosition);
+      setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
+    }
 
-      if (imagesArray[imageId].mobileStyles) {
-        setImageMobileObjectPosition(imagesArray[imageId].mobileStyles.objectPosition);
-        setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "x"));
-        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "y"));
-      }
-      fetchDataFromDatabaseToImagesArray();
+    if (imagesArray[imageId].mobileStyles) {
+      setImageMobileObjectPosition(imagesArray[imageId].mobileStyles.objectPosition);
+      setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "x"));
     }
-    else {
-      fetchDataFromDatabaseToImagesArray();
-    }
+    fetchDataFromDatabaseToImagesArray();
   }
 
 
@@ -245,7 +236,7 @@ export const Manager = ({ mode, actionType }) => {
   }
 
 
-  // DRAG AND DROP
+  // ORDER IMAGE FUNCTIONS
 
 
   const handleDragStart = (e) => {
@@ -255,6 +246,7 @@ export const Manager = ({ mode, actionType }) => {
       }
     });
     setDropLocation(Number(e.target.id));
+    
     e.target.style.fontWeight = "bold";
   }
   const handleDragEnd = (e) => {
@@ -284,6 +276,24 @@ export const Manager = ({ mode, actionType }) => {
   const handleDragLeave = (e) => {
     e.target.style.borderTop = "none";
   }
+  const handlePreview = (e) => {
+    imagesArray.forEach((image, index) => {
+      if (image.title === e.target.textContent) {
+        setImageId(String(index));
+      }
+    });
+  }
+  const handleImagesOrderSave = (e) => {
+    e.preventDefault();
+    resetImageValues();
+    sendDataToDatabase(mode, imagesArray);
+    fetchDataFromDatabaseToImagesArray();
+  }
+  const handleImagesOrderReset = (e) => {
+    e.preventDefault();
+    resetImageValues();
+    fetchDataFromDatabaseToImagesArray();
+  }
 
   
   // JSX
@@ -293,9 +303,9 @@ export const Manager = ({ mode, actionType }) => {
     <FormSectionWrapper>
     <Form>
         <Heading>{actionType} {mode === "photos" ? "photo" : "artwork"}</Heading>
-        { (imagesArray && actionType !== "Add") &&
+        { (imagesArray && ((actionType !== "Add") && (actionType !== "Order"))) &&
             <Container>
-              <Label htmlFor="imageSelect">Select a {mode === "photos" ? "photo" : "artwork"} to {actionType}</Label>
+              <Label htmlFor="imageSelect">Select a {mode === "photos" ? "photo" : "artwork"} to {actionType.toLowerCase()}</Label>
               <Select name="imageSelect" size="5" onChange={handleImageSelect}>
                 { imagesArray.map((image, index) => {
                   return (
@@ -307,7 +317,7 @@ export const Manager = ({ mode, actionType }) => {
             </Container>
         }
 
-        { actionType !== "Delete" &&
+        { ((actionType !== "Delete") && (actionType !== "Order")) &&
           <>
             <Container>
               <Label htmlFor="srcInput">External URL of {mode === "photos" ? "photo" : "artwork"}</Label>
@@ -321,35 +331,23 @@ export const Manager = ({ mode, actionType }) => {
           </>
         }
         
-        { (imageSrc && actionType !== "Delete" && isDesktopPreview) &&
+        { (imageSrc && ((actionType !== "Delete") && (actionType !== "Order")) && isDesktopPreview) &&
           <>                                     
             <Container>
-              <Label htmlFor="percentXDesktopSlider">Set horizontal position on desktop</Label>
+              <Label htmlFor="percentXDesktopSlider">Set {mode === "photos" ? "photo's" : "artwork's"} position on desktop</Label>
               <Input type="range" name="percentXDesktopSlider" min="0" max="100" step="1" value={percentXDesktop} onChange={handlePercentXDesktopChange}></Input>
               <Label>{percentXDesktop}%</Label>
-            </Container> 
-
-            <Container>
-              <Label htmlFor="percentYDesktopSlider">Set vertical position on desktop</Label>
-              <Input type="range" name="percentYDesktopSlider" min="0" max="100" step="1" value={percentYDesktop} onChange={handlePercentYDesktopChange}></Input>
-              <Label>{percentYDesktop}%</Label>
             </Container>
           </>
         }
 
-        { (imageSrc && actionType !== "Delete" && !isDesktopPreview) &&
+        { (imageSrc && ((actionType !== "Delete") && (actionType !== "Order")) && !isDesktopPreview) &&
           <>                               
             <Container>
-              <Label htmlFor="percentXMobileSlider">Set horizontal position on mobile</Label>
+              <Label htmlFor="percentXMobileSlider">Set {mode === "photos" ? "photo's" : "artwork's"} position on mobile</Label>
               <Input type="range" name="percentXMobileSlider" min="0" max="100" step="1" value={percentXMobile} onChange={handlePercentXMobileChange}></Input>
               <Label>{percentXMobile}%</Label>
-            </Container> 
-
-            <Container>
-              <Label htmlFor="percentYMobileSlider">Set vertical position on mobile</Label>
-              <Input type="range" name="percentYMobileSlider" min="0" max="100" step="1" value={percentYMobile} onChange={handlePercentYMobileChange}></Input>
-              <Label>{percentYMobile}%</Label>
-            </Container>     
+            </Container>
           </>
         }
 
@@ -359,7 +357,7 @@ export const Manager = ({ mode, actionType }) => {
               <Input type="checkbox" name="isImagesLoadRandomly" onChange={handleRandomOrderCheckbox} checked={isRandomOrderOn}></Input>
             </Container>
         }
-        { (imagesArray && !isRandomOrderOn) &&
+        { (imagesArray && actionType === "Order") &&
           <Container>
             <Label>Set {mode} order</Label>
             <DragListContainer>
@@ -369,6 +367,7 @@ export const Manager = ({ mode, actionType }) => {
                       key={index}
                       id={index}
                       draggable={true}
+                      onPointerEnter={handlePreview}
                       onDragStart={handleDragStart}
                       onDragEnter={handleDragEnter}
                       onDragLeave={handleDragLeave}
@@ -392,6 +391,12 @@ export const Manager = ({ mode, actionType }) => {
           <Container row>
             <Button type="button" onClick={handleImageEdit}>Save</Button>
             <Button type="button" onClick={handleImageEditReset}>Reset</Button>
+          </Container>
+        }
+        { actionType === "Order" &&
+          <Container row>
+            <Button type="button" onClick={handleImagesOrderSave}>Save</Button>
+            <Button type="button" onClick={handleImagesOrderReset}>Reset</Button>
           </Container>
         }
         { actionType === "Delete" &&

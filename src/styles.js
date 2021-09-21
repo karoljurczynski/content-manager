@@ -101,6 +101,10 @@ export const ButtonsSection = styled.section`
   ${({ actionType }) => actionType === "Delete" && `
     background: #FF0000;
   `}
+
+  ${({ actionType }) => actionType === "Order" && `
+    background: #1E90FF;
+  `}
 `;
 export const RoundButton = styled.button`
   display: flex;
@@ -111,14 +115,23 @@ export const RoundButton = styled.button`
   border-radius: 50%;
   border: none;
   box-shadow: 1px 0px 5px black, 0px 1px 5px black;
-  background: white;
+  background: #ffffff;
   outline: none;
   cursor: pointer;
   margin-top: 10px;
   user-select: none;
 
   :hover, :focus, :active {
-    opacity: 0.7;
+    background-color: #dedede;
+  }
+
+  :disabled {
+    cursor: default;
+    opacity: 0.3;
+
+    :hover, :focus, :active {
+      background-color: #ffffff;
+    }
   }
 
   img {
@@ -142,7 +155,7 @@ export const SwitchBackground = styled.span`
   box-shadow: 1px 0px 2px black, 0px 1px 2px black;
   cursor: pointer;
 
-
+  
   ${({ previewChanger }) => previewChanger && `
     margin: 10px 0 10px 3px;
     position: relative;
@@ -162,7 +175,7 @@ export const SwitchButton = styled.button`
   cursor: pointer;
   transition: 0.2s ease;
 
-
+  
   ${({ isSwitchAtLeft }) => !isSwitchAtLeft && `left: 11px`}
 `;
 
@@ -231,7 +244,9 @@ export const Label = styled.label`
 `;
 export const DragListContainer = styled.div`
   width: 100%;
-  height: 120px;
+  min-height: 120px;
+  max-height: 400px;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

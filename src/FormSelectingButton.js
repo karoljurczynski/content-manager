@@ -2,9 +2,10 @@ import { RoundButton } from './styles';
 import addIcon from './images/add.png';
 import editIcon from './images/edit.png';
 import deleteIcon from './images/delete.png';
+import orderIcon from './images/order.png';
 
 
-export const FormSelectingButton = ({ formType, onClickFunction }) => {
+export const FormSelectingButton = ({ disabled, formType, onClickFunction }) => {
   const getIcon = () => {
     switch (formType) {
       case "Add": {
@@ -16,6 +17,9 @@ export const FormSelectingButton = ({ formType, onClickFunction }) => {
       case "Delete": {
         return deleteIcon;
       }
+      case "Order": {
+        return orderIcon;
+      }
       default: {
         return "";
       }
@@ -23,8 +27,8 @@ export const FormSelectingButton = ({ formType, onClickFunction }) => {
   }
 
   return (
-    <RoundButton title={formType} onClick={onClickFunction}>
-      <img src={getIcon()} alt={formType} />
+    <RoundButton disabled={ disabled } title={ formType } onClick={ onClickFunction }>
+      <img src={ getIcon() } alt={ formType } />
     </RoundButton>
   )
 }
