@@ -33,7 +33,7 @@ export const Manager = ({ mode, actionType }) => {
   const [percentYMobile, setPercentYMobile] = useState(50);
 
   const [draggableObject, setDraggableObject] = useState({});
-  const [dropLocation, setDropLocation] = useState(0);
+  const [dropLocation, setDropLocation] = useState(null);
 
 
   // TOOL FUNCTIONS
@@ -254,21 +254,31 @@ export const Manager = ({ mode, actionType }) => {
         setDraggableObject(imagesArray[index]);
       }
     });
-    setDropLocation(e.target.id);
+    setDropLocation(Number(e.target.id));
     e.target.style.fontWeight = "bold";
   }
   const handleDragEnd = (e) => {
-    const newArray = imagesArray;
-    const oldObject = imagesArray[dropLocation];
-    newArray[dropLocation] = draggableObject;
-    newArray[e.target.id] = oldObject;
+    let newArray = imagesArray;
+    const dragIndex = Number(e.target.id);
+    const dropIndex = Number(dropLocation);
+    
+    if (dragIndex > dropIndex) {
+      for (let i = dragIndex; i > dropIndex; i--)
+        newArray[i] = newArray[i - 1];
+    }
+    if (dragIndex < dropIndex) {
+      for (let i = dragIndex; i < dropIndex; i++)
+        newArray[i] = newArray[i + 1];
+    }
+
+    newArray[dropIndex] = draggableObject;
     setImagesArray(newArray);
     setDraggableObject({});
-    setDropLocation(0);
+    setDropLocation(null);
     e.target.style.fontWeight = "normal";
   }
   const handleDragEnter = (e) => {
-    setDropLocation(e.target.id);
+    setDropLocation(Number(e.target.id));
     e.target.style.borderTop = "2px solid red";
   }
   const handleDragLeave = (e) => {
