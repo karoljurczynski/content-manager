@@ -76,6 +76,21 @@ export const Heading = styled.h2`
   user-select: none;
   margin-bottom: 15px;
 `;
+export const Warning = styled.p`
+  color: red;
+  margin: 10px 0 0;
+  font-size: 12px;
+
+  a {
+    color: red;
+    font-weight: bold;
+    text-decoration: none;
+
+    :hover {
+      text-decoration: underline;
+    }
+  }
+`;
 
 // BUTTONS SECTION
 
@@ -200,6 +215,12 @@ export const Input = styled.input`
   font-size: 18px;
   width: 250px;
 
+  &[type="file"] {
+    padding: 0;
+    margin: 5px 0 0;
+    font-size: 14px;
+    cursor: pointer;
+  }
   &[type="checkbox"] {
     margin: 5px 0 0;
     width: auto;
@@ -209,7 +230,7 @@ export const Input = styled.input`
   &[type="range"] {
     cursor: pointer;
   }
-
+  
 
   @media (max-width: 930px) {
     width: 100%;

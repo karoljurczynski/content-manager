@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Switch } from './Switch';
 import { getDataFromDatabase, sendDataToDatabase, getPercentValueFromObjectPosition } from "./functions";
 
-import { Form, Heading, Container, Label, Select,
+import { Form, Heading, Container, Label, Select, Warning,
          Option, Input, Button, LivePreviewContainer,
          LivePreviewPhotoWrapper, LivePreviewPhoto,
          FormSectionWrapper, LivePreviewHeading,
@@ -19,6 +19,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
   const [imagesArray, setImagesArray] = useState([]);
   const [isDesktopPreview, setIsDesktopPreview] = useState(true);
+  const [initialRandomOrder, setInitialRandomOrder] = useState(true);
   const [isRandomOrderOn, setIsRandomOrderOn] = useState(true);
 
   const [imageSrc, setImageSrc] = useState("");
@@ -54,7 +55,9 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
   }
   const fetchDataFromDatabaseToImagesArray = async () => {
     const databaseData = await getDataFromDatabase(mode);
-    setImagesArray(databaseData);
+    setImagesArray(databaseData[0]);
+    setInitialRandomOrder(databaseData[1]);
+    setIsRandomOrderOn(databaseData[1]);
     if (!databaseData.length) {
       blockAllButtons();
       window.location.reload();
@@ -145,6 +148,9 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
   const changePreviewType = () => {
     setIsDesktopPreview(!isDesktopPreview);
   }  
+  const handleFileUpload = (e) => {
+    console.log(e.target.files[0])
+  }
 
 
   // ADD IMAGE FUNCTIONS
@@ -166,7 +172,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
         }
       }
       newArray.push(newImage);
-      sendDataToDatabase(mode, newArray);
+      sendDataToDatabase(mode, newArray, isRandomOrderOn);
       resetImageValues();
     }
     else {
@@ -184,6 +190,10 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
   const handleImageEdit = async (e) => {
     e.preventDefault();
+    if (isRandomOrderOn !== initialRandomOrder) {
+      sendDataToDatabase(mode, imagesArray, isRandomOrderOn);
+      fetchDataFromDatabaseToImagesArray();
+    }
     if (imageSrc.length) {
       const newArray = imagesArray;
       const newImage = {
@@ -198,7 +208,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
         }
       }
       newArray[imageId] = newImage;
-      sendDataToDatabase(mode, newArray);
+      sendDataToDatabase(mode, newArray, isRandomOrderOn);
       fetchDataFromDatabaseToImagesArray();
     }
   }
@@ -227,7 +237,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     e.preventDefault();
     const newArray = imagesArray;
     newArray.splice(imageId, 1);
-    sendDataToDatabase(mode, newArray);
+    sendDataToDatabase(mode, newArray, isRandomOrderOn);
     setImagesArray(await getDataFromDatabase(mode));
   }
   const handleImageDeleteCancel = (e) => {
@@ -286,7 +296,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
   const handleImagesOrderSave = (e) => {
     e.preventDefault();
     resetImageValues();
-    sendDataToDatabase(mode, imagesArray);
+    sendDataToDatabase(mode, imagesArray, isRandomOrderOn);
     fetchDataFromDatabaseToImagesArray();
   }
   const handleImagesOrderReset = (e) => {
@@ -316,6 +326,13 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
               </Select>
             </Container>
         }
+        { actionType === "Add" && 
+          <Container>
+            <Label htmlFor="imageFile">Select a photo to add</Label>
+            <Input type="file" name="imageFile" accept="image/*" onChange={handleFileUpload}></Input>
+            <Warning>Make sure your {mode === "photos" ? "photo" : "artwork"} has lower resolution than original and it is compressed in app like <a href="https://tinypng.com" target="_blank">tinyPNG</a>.<br/>It will definitely increase performance of your website.</Warning>
+          </Container>
+        }  
 
         { ((actionType !== "Delete") && (actionType !== "Order")) &&
           <>
@@ -389,7 +406,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
         }
         { actionType === "Edit" &&
           <Container row>
-            <Button type="button" onClick={handleImageEdit}>Save</Button>
+            <Button type="button" onClick={handleImageEdit}>Edit</Button>
             <Button type="button" onClick={handleImageEditReset}>Reset</Button>
           </Container>
         }
