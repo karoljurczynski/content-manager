@@ -10,7 +10,7 @@ export const Wrapper = styled.div`
   z-index: 2;
   min-width: 300px;
   width: fit-content;
-  margin: 0 50%;
+  margin: 10px 50%;
   transform: translateX(-50%);
   border: 1px solid black;
   display: flex;
@@ -36,6 +36,10 @@ export const Wrapper = styled.div`
   }
   @media (max-width: 650px) {
     width: 100%;
+    margin: 0 50%;
+    border: none;
+    border-radius: 0;
+    height: 100vh;
   }
 `;
 export const FormSectionWrapper = styled.div`
@@ -120,6 +124,11 @@ export const ButtonsSection = styled.section`
   ${({ actionType }) => actionType === "Order" && `
     background: #1E90FF;
   `}
+
+  @media (max-width: 650px) {
+    border: none;
+    border-radius: 0;   
+  }
 `;
 export const RoundButton = styled.button`
   display: flex;
@@ -136,7 +145,7 @@ export const RoundButton = styled.button`
   margin-top: 10px;
   user-select: none;
 
-  :hover, :focus, :active {
+  :hover, :focus {
     background-color: #dedede;
   }
 

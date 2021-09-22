@@ -312,8 +312,10 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     e.target.style.borderTop = "none";
   }
   const handlePreview = (e) => {
+    console.log("gdg");
+    console.log(imagesArray);
     imagesArray.forEach((image, index) => {
-      if (image.title === e.target.textContent) {
+      if (image.name === e.target.textContent) {
         setImageId(String(index));
       }
     });
@@ -354,7 +356,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
           <Container>
             <Label htmlFor="imageFile">Select a photo to add</Label>
             <Input type="file" name="imageFile" id="fileInput" accept="image/*" onChange={handleFileUpload}></Input>
-            <Warning>Make sure your {mode === "photos" ? "photo" : "artwork"} has lower resolution than original and it is compressed in app like <a href="https://tinypng.com" target="_blank">tinyPNG</a>.<br/>It will definitely increase performance of your website.</Warning>
+            <Warning>Make sure your {mode === "photos" ? "photo's" : "artwork's"} longest side has maximum 900px and it is compressed in app like <a href="https://tinypng.com" target="_blank">tinyPNG</a>.<br/>It will increase performance of your website.</Warning>
           </Container>
         }  
 
