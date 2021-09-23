@@ -4,12 +4,12 @@ import { getStorage } from 'firebase/storage';
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC8NLwGLqte23XieIBAoxCgRlizm-0SGsE",
-  authDomain: "oliwier-pakula.firebaseapp.com",
-  projectId: "oliwier-pakula",
-  storageBucket: "oliwier-pakula.appspot.com",
-  messagingSenderId: "478464112458",
-  appId: "1:478464112458:web:5628d94b39ea4be480b3b3"
+  apiKey: "AIzaSyD8wdP6AYncPrNA_2JeUQFPf-yyz2AzduA",
+  authDomain: "content-manager-2e6a6.firebaseapp.com",
+  projectId: "content-manager-2e6a6",
+  storageBucket: "content-manager-2e6a6.appspot.com",
+  messagingSenderId: "911971298101",
+  appId: "1:911971298101:web:c8f3b4d81107f7aa73fa7c"
 };
 
 

@@ -14,7 +14,8 @@ export const getDataFromDatabase = async (mode) => {
     else
       return [await databaseContent.data().artworks, await databaseContent.data().isRandomOrder];
   }
-  catch {
+  catch(e) {
+    console.log(e);
     window.alert("Error with database connection! Try again.");
     return new Error();
   }
