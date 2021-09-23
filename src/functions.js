@@ -3,8 +3,7 @@ import { db, storage } from "./firebaseConfig";
 import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "@firebase/storage";
 
 
-const databaseRef = doc(db, "images/test");
-
+const databaseRef = doc(db, "content/images");
 
 
 export const getDataFromDatabase = async (mode) => {
@@ -27,7 +26,8 @@ export const sendDataToDatabase = async (mode, newArray, isRandomOrder) => {
     else
       setDoc(databaseRef, {artworks: newArray, isRandomOrder: isRandomOrder}, {merge: true}); 
   }
-  catch {
+  catch(e) {
+    console.error(e);
     window.alert("Error with saving changes! Try again.")
   }
 }
@@ -54,7 +54,7 @@ export const checkIfFileNameExist = async (mode) => {
 export const deleteFileFromStorage = async (mode, fileName) => {
   const storageRef = ref(storage, `${mode}/${fileName}`);
   try { await deleteObject(storageRef) }
-  catch { window.alert("Error with file removing! Try again.") }
+  catch(e) { console.error(e) }
 }
 export const getPercentValueFromObjectPosition = (objectPosition, axis) => {
   return objectPosition.split(" ")[axis === "x" ? 0 : 1].split("%")[0];

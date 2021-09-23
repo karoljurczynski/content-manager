@@ -96,6 +96,7 @@ export const Warning = styled.p`
   }
 `;
 
+
 // BUTTONS SECTION
 
 
@@ -248,7 +249,8 @@ export const Input = styled.input`
 export const Select = styled.select`
   width: 250px;
   padding: 5px;
-  max-height: 100px;
+  min-height: 120px;
+  max-height: 400px;
   user-select: none;
   
 

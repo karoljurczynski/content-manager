@@ -37,6 +37,8 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
   const [percentXDesktop, setPercentXDesktop] = useState(50);
   const [percentXMobile, setPercentXMobile] = useState(50);
+  const [percentYDesktop, setPercentYDesktop] = useState(50);
+  const [percentYMobile, setPercentYMobile] = useState(50);
 
   const [draggableObject, setDraggableObject] = useState({});
   const [dropLocation, setDropLocation] = useState(null);
@@ -55,7 +57,9 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     setImageDesktopObjectPosition("50% 50%");
     setImageMobileObjectPosition("50% 50%");
     setPercentXDesktop(50);
+    setPercentYDesktop(50);
     setPercentXMobile(50);
+    setPercentYMobile(50);
   }
   const blockAllButtons = () => {
     console.log(document.querySelectorAll("button"));
@@ -126,18 +130,17 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
   // Updates object-position for desktop to display image preview correctly when sliders are moved
   useEffect(() => { 
-    setImageDesktopObjectPosition(`${ percentXDesktop }% 50%`);
-  }, [ percentXDesktop ]);
+    setImageDesktopObjectPosition(`${ percentXDesktop }% ${ percentYDesktop }%`);
+  }, [ percentXDesktop, percentYDesktop ]);
 
   // Updates object-position for mobile to display image preview correctly when sliders are moved
   useEffect(() => { 
-    setImageMobileObjectPosition(`${ percentXMobile }% 50%`);
-  }, [ percentXMobile ]);
+    setImageMobileObjectPosition(`${ percentXMobile }% ${ percentYMobile }%`);
+  }, [ percentXMobile, percentYMobile ]);
   
   // Gets image's src, title and other values from array when imageId is changed
   useEffect(() => {
     if (imageId.length) {
-      console.log(imageId);
       setImageSrc(imagesArray[imageId].src);
       setFileName(imagesArray[imageId].name);
       setImageTitle(imagesArray[imageId].title);
@@ -145,11 +148,13 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
       if (imagesArray[imageId].style) {
         setImageDesktopObjectPosition(imagesArray[imageId].style.objectPosition);
         setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
+        setPercentYDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
       }
 
       if (imagesArray[imageId].mobileStyles) {
         setImageMobileObjectPosition(imagesArray[imageId].mobileStyles.objectPosition);
         setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "x"));
+        setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "y"));
       }
     }
   }, [ imageId ]);
@@ -178,6 +183,12 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
   }
   const handlePercentXMobileChange = (e) => {
     setPercentXMobile(e.target.value);    
+  }
+  const handlePercentYDesktopChange = (e) => {
+    setPercentYDesktop(e.target.value);    
+  }
+  const handlePercentYMobileChange = (e) => {
+    setPercentYMobile(e.target.value);    
   }
   const handleRandomOrderCheckbox = (e) => {
     setIsRandomOrderOn(e.target.checked);
@@ -264,11 +275,14 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     if (imagesArray[imageId].style) {
       setImageDesktopObjectPosition(imagesArray[imageId].style.objectPosition);
       setPercentXDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "x"));
+      setPercentYDesktop(getPercentValueFromObjectPosition(imagesArray[imageId].style.objectPosition, "y"));
+    
     }
 
     if (imagesArray[imageId].mobileStyles) {
       setImageMobileObjectPosition(imagesArray[imageId].mobileStyles.objectPosition);
       setPercentXMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "x"));
+      setPercentYMobile(getPercentValueFromObjectPosition(imagesArray[imageId].mobileStyles.objectPosition, "y"));
     }
     fetchDataFromDatabaseToImagesArray();
   }
@@ -285,7 +299,8 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     fetchDataFromDatabaseToImagesArray();
     resetImageValues();
     unselectAllImages();
-    if (fileName)
+    console.log(fileName);
+    if (fileName.length)
       deleteFileFromStorage(mode, fileName);
   }
   const handleImageDeleteCancel = (e) => {
@@ -398,9 +413,14 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
         { (imageSrc && ((actionType !== "Delete") && (actionType !== "Order")) && isDesktopPreview) &&
           <>                                     
             <Container>
-              <Label htmlFor="percentXDesktopSlider">Set {mode === "photos" ? "photo's" : "artwork's"} position on desktop</Label>
+              <Label htmlFor="percentXDesktopSlider">Set {mode === "photos" ? "photo's" : "artwork's"} horizontal position on desktop</Label>
               <Input type="range" name="percentXDesktopSlider" min="0" max="100" step="1" value={percentXDesktop} onChange={handlePercentXDesktopChange}></Input>
               <Label>{percentXDesktop}%</Label>
+            </Container>
+            <Container>
+              <Label htmlFor="percentYDesktopSlider">Set {mode === "photos" ? "photo's" : "artwork's"} vertical position on desktop</Label>
+              <Input type="range" name="percentYDesktopSlider" min="0" max="100" step="1" value={percentYDesktop} onChange={handlePercentYDesktopChange}></Input>
+              <Label>{percentYDesktop}%</Label>
             </Container>
           </>
         }
@@ -408,9 +428,14 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
         { (imageSrc && ((actionType !== "Delete") && (actionType !== "Order")) && !isDesktopPreview) &&
           <>                               
             <Container>
-              <Label htmlFor="percentXMobileSlider">Set {mode === "photos" ? "photo's" : "artwork's"} position on mobile</Label>
+              <Label htmlFor="percentXMobileSlider">Set {mode === "photos" ? "photo's" : "artwork's"}horizontal position on mobile</Label>
               <Input type="range" name="percentXMobileSlider" min="0" max="100" step="1" value={percentXMobile} onChange={handlePercentXMobileChange}></Input>
               <Label>{percentXMobile}%</Label>
+            </Container>
+            <Container>
+              <Label htmlFor="percentYMobileSlider">Set {mode === "photos" ? "photo's" : "artwork's"}vertical position on mobile</Label>
+              <Input type="range" name="percentYMobileSlider" min="0" max="100" step="1" value={percentYMobile} onChange={handlePercentYMobileChange}></Input>
+              <Label>{percentYMobile}%</Label>
             </Container>
           </>
         }
