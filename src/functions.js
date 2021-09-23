@@ -1,6 +1,6 @@
 import { doc, getDoc, setDoc } from "@firebase/firestore";
 import { db, storage } from "./firebaseConfig";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "@firebase/storage";
+import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "@firebase/storage";
 
 
 const databaseRef = doc(db, "images/test");
@@ -40,6 +40,16 @@ export const loadFileFromStorage = async (mode, fileName) => {
   const storageRef = ref(storage, `${mode}/${fileName}`);
   try { return await getDownloadURL(storageRef) }
   catch { window.alert("Error with file loading! Try again.") }
+}
+export const checkIfFileNameExist = async (mode) => {
+  const storageRef = ref(storage, `${mode}`);
+  const imagesNames = [];
+  try {
+    const images = await listAll(storageRef);
+    images.items.forEach(image => imagesNames.push(image.name));
+    return imagesNames;
+  }
+  catch { return false }
 }
 export const deleteFileFromStorage = async (mode, fileName) => {
   const storageRef = ref(storage, `${mode}/${fileName}`);

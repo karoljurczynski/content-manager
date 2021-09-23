@@ -9,6 +9,7 @@ export const Wrapper = styled.div`
   position: relative;
   z-index: 2;
   min-width: 300px;
+  min-height: 500px;
   width: fit-content;
   margin: 10px 50%;
   transform: translateX(-50%);
@@ -22,17 +23,16 @@ export const Wrapper = styled.div`
 
   ${({ mode }) => mode === "artworks" && `
     height: 600px;
-    @media (max-width: 930px) { height: 1120px }
   `}
 
   ${({ mode }) => mode === "photos" && `
     height: 762px;
-    @media (max-width: 930px) { height: 1281px }
   `}
   
 
   @media (max-width: 930px) {
     width: 630px;
+    height: calc(100vh - 20px);
   }
   @media (max-width: 650px) {
     width: 100%;

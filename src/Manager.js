@@ -5,6 +5,7 @@ import { Switch } from './Switch';
 import { getDataFromDatabase, 
          sendDataToDatabase,
          uploadFileToStorage,
+         checkIfFileNameExist,
          loadFileFromStorage,
          deleteFileFromStorage, 
          getPercentValueFromObjectPosition } from "./functions";
@@ -71,15 +72,39 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
       blockAllButtons();
       window.location.reload();
     }
-    console.log(imagesArray.length);
+    deleteUnusedImages(databaseData[0]);
   }
   const unselectAllImages = () => {
     document.querySelectorAll("option").forEach(option => {
       option.selected = false;
     });
   }
-  
+  const deleteUnusedImages = async (array) => {
+    const filter = value => {
+      let isExist = false;
+      imagesArrayNames.forEach(name => {
+        if (value === name)
+          isExist = true;
+      });
 
+      if (!isExist)
+        return value;
+    }
+    let storagedImagesNames =  await checkIfFileNameExist(mode);
+    const imagesArrayNames = [];
+
+    if (storagedImagesNames) {
+      array.forEach(image => { imagesArrayNames.push(image.name) });
+      storagedImagesNames = storagedImagesNames.filter(filter);
+      if (storagedImagesNames.length) {
+        storagedImagesNames.forEach(name => {
+          deleteFileFromStorage(mode, name);
+        });
+      }
+    }
+  }
+
+  
   // EFFECTS
 
 
@@ -89,7 +114,7 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     setIsDesktopPreview(true);
     setIsRandomOrderOn(true);
     resetImageValues();
-    unselectAllImages(); 
+    unselectAllImages();
   }, [ mode ]);
 
   // Reset image values and preview when actionType is changed (add/edit/delete)
@@ -299,7 +324,6 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
 
     newArray[dropIndex] = draggableObject;
     setImagesArray(newArray);
-    console.log(imagesArray);
     setDraggableObject({});
     setDropLocation(null);
     e.target.style.fontWeight = "normal";
@@ -312,8 +336,6 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     e.target.style.borderTop = "none";
   }
   const handlePreview = (e) => {
-    console.log("gdg");
-    console.log(imagesArray);
     imagesArray.forEach((image, index) => {
       if (image.name === e.target.textContent) {
         setImageId(String(index));
@@ -321,9 +343,8 @@ export const Manager = ({ mode, actionType, setIsOrderButtonDisabled }) => {
     });
   }
   const handleImagesOrderSave = (e) => {
-    e.preventDefault(); // bug - order displaying
+    e.preventDefault();
     sendDataToDatabase(mode, imagesArray, isRandomOrderOn);
-    fetchDataFromDatabaseToImagesArray();
   }
   const handleImagesOrderReset = (e) => {
     e.preventDefault();
